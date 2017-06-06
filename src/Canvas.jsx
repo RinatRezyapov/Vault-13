@@ -6,7 +6,7 @@ export default class Canvas extends React.Component {
     super(props);
     this.state = {
       hexSize: 20,
-      hexOrigin: {x: 300, y: 300 }
+      hexOrigin: {x: 400, y: 300 }
     }
   }
   componentWillMount() {
@@ -24,7 +24,44 @@ export default class Canvas extends React.Component {
     this.drawHexes();
   }
 
-  drawHexes() {
+drawHexes() {
+  const { canvasWidth, canvasHeight } = this.state.canvasSize;
+  const { hexWidth, hexHeight, vertDist, horizDist } = this.state.hexParametres;
+  const hexOrigin = this.state.hexOrigin;
+  let qLeftSide = Math.round(hexOrigin.x/horizDist);
+  let qRightSide = Math.round((canvasWidth - hexOrigin.x)/horizDist);
+  let rTopSide = Math.round(hexOrigin.y/vertDist);
+  let rBottomSide = Math.round((canvasHeight - hexOrigin.y)/vertDist);
+  console.log(qLeftSide, qRightSide, rTopSide, rBottomSide)
+  var p = 0;
+  for (let r = 0; r <= rBottomSide; r++) {
+    if(r%2 == 0 && r !==0) {
+      p++;
+    }
+    for (let q = -qLeftSide; q <= qRightSide; q++) {
+        const { x, y } = this.hexToPixel(this.Hex(q-p, r));
+        if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
+          this.drawHex(this.canvasHex, this.Point(x,y));
+          this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q-p, r));
+        }
+    }
+  }
+
+var n = 0;
+  for (let r = -1; r >= -rTopSide; r--) {
+    if(r%2 !== 0) {
+      n++;
+    }
+    for (let q = -qLeftSide; q <= qRightSide; q++) {
+        const { x, y } = this.hexToPixel(this.Hex(q+n, r));
+          if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
+        this.drawHex(this.canvasHex, this.Point(x,y));
+        this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q+n, r));
+      }
+    }
+  }
+}
+  /*drawHexes() {
     const { canvasWidth, canvasHeight } = this.state.canvasSize;
     const { hexWidth, hexHeight, vertDist, horizDist } = this.state.hexParametres;
     const hexOrigin = this.state.hexOrigin;
@@ -41,7 +78,7 @@ export default class Canvas extends React.Component {
         }
       }
     }
-  }
+  }*/
 
 drawHex(canvasID, center) {
   for (let i = 0; i <= 5; i++) {
