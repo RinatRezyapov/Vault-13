@@ -34,6 +34,7 @@ const { q, r, s, x, y } = nextState.currentHex;
 const { canvasWidth, canvasHeight } = this.state.canvasSize;
 const ctx = this.canvasCoordinates.getContext("2d");
 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+this.drawNeighbors(this.Hex(q, r, s));
 this.drawHex(this.canvasCoordinates, this.Point(x,y), "lime", 2);
 return true;
     }
@@ -58,7 +59,7 @@ drawHexes() {
         const { x, y } = this.hexToPixel(this.Hex(q-p, r));
         if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
           this.drawHex(this.canvasHex, this.Point(x,y));
-          this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q-p, r, -q - r));
+          this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q-p, r, -(q - p) - r));
         }
     }
   }
@@ -72,7 +73,7 @@ var n = 0;
         const { x, y } = this.hexToPixel(this.Hex(q+n, r));
           if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
         this.drawHex(this.canvasHex, this.Point(x,y));
-        this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q+n, r, - q - r));
+        this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q+n, r, - (q + n) - r));
       }
     }
   }
@@ -125,6 +126,21 @@ getCanvasPosition(canvasID) {
      return this.Hex(q, r, - q - r);
    }
 
+cubeDirection(direction) {
+  const cubeDirections = [this.Hex(1, 0, -1), this.Hex(1, -1, 0), this.Hex(0, -1, 1),
+                          this.Hex(-1, 0, 1), this.Hex(-1, 1, 0), this.Hex(0, 1, -1)];
+return cubeDirections[direction];
+}
+
+cubeAdd(a, b) {
+  return this.Hex(a.q + b.q, a.r + b.r, a.s + b.s);
+}
+
+getCubeNeighbor(h, direction) {
+  return this.cubeAdd(h, this.cubeDirection(direction));
+}
+
+
    cubeRound(cube) {
      var rx = Math.round(cube.q)
      var ry = Math.round(cube.r)
@@ -170,6 +186,14 @@ getCanvasPosition(canvasID) {
      ctx.fillText(h.r, center.x-3, center.y+15);
      ctx.fillText(h.s, center.x-12, center.y);
    }
+
+drawNeighbors(h) {
+  for (let i = 0; i <= 5; i++) {
+    const { q, r, s} = this.getCubeNeighbor(this.Hex(h.q, h.r, h.s), i);
+    const { x, y } = this.hexToPixel(this.Hex(q, r, s));
+    this.drawHex(this.canvasCoordinates, this.Point(x, y), "red", 2);
+  }
+}
 
    handleMouseMove(e) {
      const { left, right, top, bottom } = this.state.canvasPosition;
