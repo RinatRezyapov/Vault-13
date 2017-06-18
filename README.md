@@ -8,6 +8,6 @@ This is my first attempt. I decided to make video of this process and upload it 
 
 I'm not trying to use best practices while writing the code I just want to do it as simple as possible.
 
-If you an interesting project, especially game project feel free to caontact me: rinat.rezyapov@gmail.com as I want to gain experience and change my current profession to something related to programming.
+If you have an interesting project, especially game project feel free to contact me: rinat.rezyapov@gmail.com as I want to gain experience and change my current profession to something related to programming.
 
 Thank you for attention!
