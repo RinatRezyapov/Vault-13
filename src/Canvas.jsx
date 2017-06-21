@@ -10,7 +10,7 @@ export default class Canvas extends React.Component {
       hexSize: 20,
       hexOrigin: {x: 400, y: 300 },
       currentHex: { q: 0, r: 0, s: 0, x: 0, y: 0 },
-      playerPosition: { q: 0, r: 0, s: 0, x: 0, y: 0 }
+      obstacles: []
     }
   }
   componentWillMount() {
@@ -25,9 +25,9 @@ export default class Canvas extends React.Component {
     const { canvasWidth, canvasHeight } = this.state.canvasSize;
     this.canvasHex.width = canvasWidth;
     this.canvasHex.height = canvasHeight;
-    this.canvasCoordinates.width = canvasWidth;
-    this.canvasCoordinates.height = canvasHeight;
-    this.getCanvasPosition(this.canvasCoordinates);
+    this.canvasInteraction.width = canvasWidth;
+    this.canvasInteraction.height = canvasHeight;
+    this.getCanvasPosition(this.canvasInteraction);
     this.drawHexes();
   }
 
@@ -35,19 +35,23 @@ export default class Canvas extends React.Component {
     if(nextState.currentHex !== this.state.currentHex) {
 const { q, r, s, x, y } = nextState.currentHex;
 const { canvasWidth, canvasHeight } = this.state.canvasSize;
-const ctx = this.canvasCoordinates.getContext("2d");
+const ctx = this.canvasInteraction.getContext("2d");
 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 /*this.drawNeighbors(this.Hex(q, r, s));*/
 let currentDistanceLine = nextState.currentDistanceLine;
 for (let i = 0; i <= currentDistanceLine.length - 2; i++) {
   if ( i == 0 ) {
-    this.drawHex(this.canvasCoordinates, this.Point(currentDistanceLine[i].x, currentDistanceLine[i].y), "black", 1 ,"red");
+    this.drawHex(this.canvasInteraction, this.Point(currentDistanceLine[i].x, currentDistanceLine[i].y), 1 , "black", "red");
   } else {
-      this.drawHex(this.canvasCoordinates, this.Point(currentDistanceLine[i].x, currentDistanceLine[i].y), "black", 1 ,"grey");
+      this.drawHex(this.canvasInteraction, this.Point(currentDistanceLine[i].x, currentDistanceLine[i].y), 1 , "black", "grey");
   }
 
 }
-this.drawHex(this.canvasCoordinates, this.Point(x,y), "black", 1, "grey");
+nextState.obstacles.map((l)=>{
+  const { q,r,s,x,y } = JSON.parse(l);
+  this.drawHex(this.canvasInteraction, this.Point(x,y), 1, "black",  "black");
+})
+this.drawHex(this.canvasInteraction, this.Point(x,y), 1, "black", "grey");
 return true;
     }
     return false;
@@ -70,7 +74,7 @@ drawHexes() {
     for (let q = -qLeftSide; q <= qRightSide; q++) {
         const { x, y } = this.hexToPixel(this.Hex(q-p, r));
         if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
-          this.drawHex(this.canvasHex, this.Point(x,y), "black", 1, "grey");
+          this.drawHex(this.canvasHex, this.Point(x,y), 1, "black", "grey");
           /*this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q-p, r, -(q - p) - r));*/
         }
     }
@@ -84,7 +88,7 @@ var n = 0;
     for (let q = -qLeftSide; q <= qRightSide; q++) {
         const { x, y } = this.hexToPixel(this.Hex(q+n, r));
           if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
-        this.drawHex(this.canvasHex, this.Point(x,y), "black", 1, "grey");
+        this.drawHex(this.canvasHex, this.Point(x,y), 1, "black", "grey");
         /*this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q+n, r, - (q + n) - r));*/
       }
     }
@@ -92,12 +96,12 @@ var n = 0;
 }
 
 
-drawHex(canvasID, center, lineColor, width, fillColor) {
+drawHex(canvasID, center, lineWidth, lineColor, fillColor) {
   for (let i = 0; i <= 5; i++) {
     let start = this.getHexCornerCoord(center, i);
     let end = this.getHexCornerCoord(center, i + 1);
     this.fillHex(canvasID, center, fillColor);
-    this.drawLine(canvasID, start, end, lineColor, width);
+    this.drawLine(canvasID, start, end, lineWidth, lineColor);
   }
 }
 
@@ -211,12 +215,12 @@ linearInt(a, b, t) {
      return {q: q, r: r, s: s}
    }
 
-   drawLine(canvasID, start, end, color, width) {
+   drawLine(canvasID, start, end, lineWidth, lineColor) {
      const ctx = canvasID.getContext("2d");
      ctx.beginPath();
      ctx.moveTo(start.x, start.y);
-     ctx.strokeStyle = color;
-     ctx.lineWidth = width;
+     ctx.strokeStyle = lineColor;
+     ctx.lineWidth = lineWidth;
      ctx.lineTo(end.x, end.y);
      ctx.stroke();
      ctx.closePath();
@@ -254,7 +258,7 @@ drawNeighbors(h) {
   for (let i = 0; i <= 5; i++) {
     const { q, r, s} = this.getCubeNeighbor(this.Hex(h.q, h.r, h.s), i);
     const { x, y } = this.hexToPixel(this.Hex(q, r, s));
-    this.drawHex(this.canvasCoordinates, this.Point(x, y), "red", 2);
+    this.drawHex(this.canvasInteraction, this.Point(x, y), "red", 2);
   }
 }
 
@@ -267,7 +271,7 @@ drawNeighbors(h) {
      const { q, r, s } = this.cubeRound(this.pixelToHex(this.Point(offsetX, offsetY)));
      const { x, y } = this.hexToPixel(this.Hex(q, r, s));
      let playerPosition = this.state.playerPosition;
-     this.getDistanceLine(this.Hex(playerPosition.q,playerPosition.r,playerPosition.s), this.Hex(q,r,s));
+     this.getDistanceLine(this.Hex(0,0,0), this.Hex(q,r,s));
       if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
 this.setState({
   currentHex: {q, r, s, x, y}
@@ -276,10 +280,24 @@ this.setState({
    }
 
    handleClick() {
-     this.setState({
-       playerPosition: this.state.currentHex
-     })
+this.addObstacles();
    }
+
+addObstacles() {
+  let obstacles = this.state.obstacles;
+  if(!obstacles.includes(JSON.stringify(this.state.currentHex))) {
+    obstacles = [].concat(obstacles, JSON.stringify(this.state.currentHex))
+  } else {
+    obstacles.map((l,i) => {
+      if(l == JSON.stringify(this.state.currentHex)) {
+        obstacles = obstacles.slice(0, i).concat(obstacles.slice(i+1));
+      }
+    })
+  }
+  this.setState({
+    obstacles: obstacles
+  })
+}
 
 
 
@@ -287,7 +305,8 @@ this.setState({
     return (
       <div>
       <canvas ref={canvasHex => this.canvasHex = canvasHex }> </canvas>
-      <canvas ref={canvasCoordinates => this.canvasCoordinates = canvasCoordinates} onMouseMove = {this.handleMouseMove} onClick={this.handleClick}> </canvas>
+      <canvas ref={canvasCoordinates => this.canvasCoordinates = canvasCoordinates }> </canvas>
+      <canvas ref={canvasInteraction => this.canvasInteraction = canvasInteraction} onMouseMove = {this.handleMouseMove} onClick={this.handleClick}> </canvas>
       </div>
     )
   }
