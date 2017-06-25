@@ -6,11 +6,15 @@ export default class Canvas extends React.Component {
     super(props);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.handleExpandClick = this.handleExpandClick.bind(this);
     this.state = {
       hexSize: 20,
       hexOrigin: {x: 400, y: 300 },
       currentHex: { q: 0, r: 0, s: 0, x: 0, y: 0 },
-      obstacles: []
+      playerPosition: { q: 0, r: 0, s: 0, x: 400, y: 300 },
+      obstacles: [],
+      frontier: [],
+      cameFrom: {}
     }
   }
   componentWillMount() {
@@ -27,7 +31,10 @@ export default class Canvas extends React.Component {
     this.canvasHex.height = canvasHeight;
     this.canvasInteraction.width = canvasWidth;
     this.canvasInteraction.height = canvasHeight;
+    this.canvasView.width = canvasWidth;
+    this.canvasView.height = canvasHeight;
     this.getCanvasPosition(this.canvasInteraction);
+    this.drawHex(this.canvasInteraction, this.Point(this.state.playerPosition.x, this.state.playerPosition.y), 1, "grey", "red", 0.2);
     this.drawHexes();
   }
 
@@ -48,12 +55,28 @@ for (let i = 0; i <= currentDistanceLine.length - 2; i++) {
 
 }
 nextState.obstacles.map((l)=>{
-  const { q,r,s,x,y } = JSON.parse(l);
+  const { q, r, s } = JSON.parse(l);
+  const { x, y } = this.hexToPixel(this.Hex(q, r, s))
   this.drawHex(this.canvasInteraction, this.Point(x,y), 1, "black",  "black");
 })
+
 this.drawHex(this.canvasInteraction, this.Point(x,y), 1, "black", "grey");
 return true;
     }
+
+if(nextState.cameFrom !== this.state.cameFrom) {
+  const { canvasWidth, canvasHeight } = this.state.canvasSize;
+  const ctx = this.canvasView.getContext("2d");
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  for (let l in nextState.cameFrom) {
+    const { q, r, s } = JSON.parse(l);
+    const { x, y } = this.hexToPixel(this.Hex(q, r));
+    this.drawHex(this.canvasView, this.Point(x, y), 1, "black", "green", 0.1);
+  }
+  return true;
+}
+
+
     return false;
   }
 
@@ -159,6 +182,15 @@ cubeSubstract(hexA, hexB) {
 
 getCubeNeighbor(h, direction) {
   return this.cubeAdd(h, this.cubeDirection(direction));
+}
+
+getNeighbors(h) {
+  var arr = [];
+  for (let i = 0; i <= 5; i++) {
+    const { q, r, s } = this.getCubeNeighbor(this.Hex(h.q, h.r, h.s), i);
+    arr.push(this.Hex(q, r, s));
+  }
+  return arr;
 }
 
 
@@ -284,12 +316,13 @@ this.addObstacles();
    }
 
 addObstacles() {
+  const { q, r, s } = this.state.currentHex;
   let obstacles = this.state.obstacles;
-  if(!obstacles.includes(JSON.stringify(this.state.currentHex))) {
-    obstacles = [].concat(obstacles, JSON.stringify(this.state.currentHex))
+  if(!obstacles.includes(JSON.stringify(this.Hex(q, r, s)))) {
+    obstacles = [].concat(obstacles, JSON.stringify(this.Hex(q, r, s)))
   } else {
     obstacles.map((l,i) => {
-      if(l == JSON.stringify(this.state.currentHex)) {
+      if(l == JSON.stringify(this.Hex(q, r, s))) {
         obstacles = obstacles.slice(0, i).concat(obstacles.slice(i+1));
       }
     })
@@ -299,6 +332,32 @@ addObstacles() {
   })
 }
 
+handleExpandClick() {
+var frontier = this.state.frontier;
+var cameFrom = this.state.cameFrom;
+if(frontier == 0) {
+  frontier.push(this.Hex(0,0,0));
+  cameFrom[JSON.stringify(this.Hex(0,0,0))] = JSON.stringify(null);
+}
+let n = 0;
+while (n<1) {
+  var current = frontier.shift();
+  let arr = this.getNeighbors(current);
+  arr.map((l) => {
+    if(!cameFrom.hasOwnProperty(JSON.stringify(l)) && !this.state.obstacles.includes(JSON.stringify(l))) {
+      frontier.push(l);
+      cameFrom[JSON.stringify(l)] = JSON.stringify(current);
+    }
+  })
+  n++
+}
+cameFrom = Object.assign({}, cameFrom);
+this.setState({
+  cameFrom: cameFrom
+})
+}
+
+
 
 
   render() {
@@ -306,7 +365,9 @@ addObstacles() {
       <div>
       <canvas ref={canvasHex => this.canvasHex = canvasHex }> </canvas>
       <canvas ref={canvasCoordinates => this.canvasCoordinates = canvasCoordinates }> </canvas>
+      <canvas ref={canvasView => this.canvasView = canvasView }> </canvas>
       <canvas ref={canvasInteraction => this.canvasInteraction = canvasInteraction} onMouseMove = {this.handleMouseMove} onClick={this.handleClick}> </canvas>
+<button className="expandButton" onClick={this.handleExpandClick}>Expand</button>
       </div>
     )
   }
