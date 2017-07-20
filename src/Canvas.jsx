@@ -1,20 +1,23 @@
 import React from 'react';
 import '../styles/index.scss';
 
+var DUMMY_OBSTACLES = ['{"q":4,"r":-2,"s":-2}', '{"q":4,"r":-1,"s":-3}', '{"q":4,"r":0,"s":-4}', '{"q":4,"r":1,"s":-5}', '{"q":3,"r":2,"s":-5}', '{"q":2,"r":3,"s":-5}', '{"q":1,"r":4,"s":-5}', '{"q":0,"r":5,"s":-5}', '{"q":-1,"r":6,"s":-5}', '{"q":-2,"r":7,"s":-5}', '{"q":4,"r":-4,"s":0}', '{"q":3,"r":-4,"s":1}', '{"q":2,"r":-4,"s":2}', '{"q":1,"r":-4,"s":3}', '{"q":2,"r":-5,"s":3}', '{"q":3,"r":-6,"s":3}', '{"q":4,"r":-7,"s":3}', '{"q":5,"r":-9,"s":4}', '{"q":6,"r":-9,"s":3}', '{"q":7,"r":-9,"s":2}', '{"q":8,"r":-9,"s":1}', '{"q":9,"r":-9,"s":0}', '{"q":10,"r":-9,"s":-1}', '{"q":11,"r":-9,"s":-2}', '{"q":12,"r":-9,"s":-3}', '{"q":13,"r":-9,"s":-4}', '{"q":14,"r":-9,"s":-5}', '{"q":15,"r":-9,"s":-6}', '{"q":15,"r":-8,"s":-7}', '{"q":14,"r":-7,"s":-7}', '{"q":14,"r":-6,"s":-8}', '{"q":13,"r":-5,"s":-8}', '{"q":13,"r":-4,"s":-9}', '{"q":12,"r":-3,"s":-9}', '{"q":12,"r":-2,"s":-10}', '{"q":11,"r":-1,"s":-10}', '{"q":11,"r":0,"s":-11}', '{"q":10,"r":1,"s":-11}', '{"q":10,"r":2,"s":-12}', '{"q":9,"r":3,"s":-12}', '{"q":9,"r":4,"s":-13}', '{"q":8,"r":5,"s":-13}', '{"q":8,"r":6,"s":-14}', '{"q":7,"r":7,"s":-14}', '{"q":7,"r":8,"s":-15}', '{"q":6,"r":9,"s":-15}', '{"q":5,"r":9,"s":-14}', '{"q":4,"r":9,"s":-13}', '{"q":3,"r":9,"s":-12}', '{"q":2,"r":9,"s":-11}', '{"q":1,"r":9,"s":-10}', '{"q":0,"r":9,"s":-9}', '{"q":-1,"r":9,"s":-8}', '{"q":-2,"r":9,"s":-7}', '{"q":-3,"r":9,"s":-6}', '{"q":-4,"r":9,"s":-5}', '{"q":-5,"r":9,"s":-4}', '{"q":-5,"r":8,"s":-3}', '{"q":-5,"r":7,"s":-2}', '{"q":-5,"r":6,"s":-1}', '{"q":-5,"r":5,"s":0}', '{"q":-4,"r":4,"s":0}', '{"q":-3,"r":3,"s":0}', '{"q":-2,"r":-1,"s":3}', '{"q":-2,"r":-2,"s":4}', '{"q":-4,"r":1,"s":3}', '{"q":-4,"r":2,"s":2}', '{"q":-5,"r":3,"s":2}', '{"q":-7,"r":4,"s":3}', '{"q":-6,"r":4,"s":2}', '{"q":-8,"r":4,"s":4}', '{"q":-9,"r":4,"s":5}', '{"q":-10,"r":4,"s":6}', '{"q":-11,"r":4,"s":7}', '{"q":-12,"r":4,"s":8}', '{"q":-12,"r":2,"s":10}', '{"q":-12,"r":3,"s":9}', '{"q":-13,"r":4,"s":9}', '{"q":-13,"r":5,"s":8}', '{"q":-14,"r":6,"s":8}', '{"q":-14,"r":7,"s":7}', '{"q":-15,"r":8,"s":7}', '{"q":-15,"r":9,"s":6}', '{"q":-14,"r":9,"s":5}', '{"q":-13,"r":9,"s":4}', '{"q":-12,"r":9,"s":3}', '{"q":-11,"r":9,"s":2}', '{"q":-10,"r":9,"s":1}', '{"q":-9,"r":9,"s":0}', '{"q":-8,"r":9,"s":-1}', '{"q":-7,"r":9,"s":-2}', '{"q":-6,"r":9,"s":-3}', '{"q":-11,"r":1,"s":10}', '{"q":-11,"r":0,"s":11}', '{"q":-10,"r":-1,"s":11}', '{"q":-10,"r":-2,"s":12}', '{"q":-9,"r":-3,"s":12}', '{"q":-9,"r":-4,"s":13}', '{"q":-8,"r":-5,"s":13}', '{"q":-8,"r":-6,"s":14}', '{"q":-7,"r":-7,"s":14}', '{"q":-7,"r":-8,"s":15}', '{"q":-6,"r":-9,"s":15}', '{"q":-5,"r":-9,"s":14}', '{"q":-4,"r":-9,"s":13}', '{"q":-3,"r":-9,"s":12}', '{"q":-2,"r":-9,"s":11}', '{"q":-1,"r":-9,"s":10}', '{"q":0,"r":-9,"s":9}', '{"q":1,"r":-9,"s":8}', '{"q":2,"r":-9,"s":7}', '{"q":3,"r":-9,"s":6}', '{"q":4,"r":-9,"s":5}', '{"q":-2,"r":-8,"s":10}', '{"q":-3,"r":-7,"s":10}', '{"q":-4,"r":-6,"s":10}', '{"q":-5,"r":-5,"s":10}', '{"q":-6,"r":-4,"s":10}', '{"q":-7,"r":-4,"s":11}', '{"q":-6,"r":-2,"s":8}', '{"q":-6,"r":-1,"s":7}', '{"q":-6,"r":0,"s":6}', '{"q":-6,"r":1,"s":5}', '{"q":7,"r":-2,"s":-5}', '{"q":8,"r":-2,"s":-6}', '{"q":9,"r":-3,"s":-6}', '{"q":10,"r":-3,"s":-7}', '{"q":4,"r":5,"s":-9}', '{"q":4,"r":6,"s":-10}', '{"q":5,"r":6,"s":-11}', '{"q":5,"r":7,"s":-12}']
+
+
 export default class Canvas extends React.Component {
   constructor(props) {
     super(props);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleClick = this.handleClick.bind(this);
-    this.handleExpandClick = this.handleExpandClick.bind(this);
     this.state = {
       hexSize: 20,
       hexOrigin: {x: 400, y: 300 },
       currentHex: { q: 0, r: 0, s: 0, x: 0, y: 0 },
-      playerPosition: { q: 0, r: 0, s: 0, x: 400, y: 300 },
-      obstacles: [],
-      frontier: [],
-      cameFrom: {}
+      playerPosition: { q: 0, r: 0, s: 0 },
+      obstacles: DUMMY_OBSTACLES,
+      cameFrom: {},
+      hexPathMap: [],
+      path: []
     }
   }
   componentWillMount() {
@@ -36,6 +39,7 @@ export default class Canvas extends React.Component {
     this.getCanvasPosition(this.canvasInteraction);
     this.drawHex(this.canvasInteraction, this.Point(this.state.playerPosition.x, this.state.playerPosition.y), 1, "grey", "red", 0.2);
     this.drawHexes();
+    this.drawObstacles();
   }
 
   shouldComponentUpdate (nextProps, nextState) {
@@ -45,22 +49,7 @@ const { canvasWidth, canvasHeight } = this.state.canvasSize;
 const ctx = this.canvasInteraction.getContext("2d");
 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 /*this.drawNeighbors(this.Hex(q, r, s));*/
-let currentDistanceLine = nextState.currentDistanceLine;
-for (let i = 0; i <= currentDistanceLine.length - 2; i++) {
-  if ( i == 0 ) {
-    this.drawHex(this.canvasInteraction, this.Point(currentDistanceLine[i].x, currentDistanceLine[i].y), 1 , "black", "red");
-  } else {
-      this.drawHex(this.canvasInteraction, this.Point(currentDistanceLine[i].x, currentDistanceLine[i].y), 1 , "black", "grey");
-  }
-
-}
-nextState.obstacles.map((l)=>{
-  const { q, r, s } = JSON.parse(l);
-  const { x, y } = this.hexToPixel(this.Hex(q, r, s))
-  this.drawHex(this.canvasInteraction, this.Point(x,y), 1, "black",  "black");
-})
-
-this.drawHex(this.canvasInteraction, this.Point(x,y), 1, "black", "grey");
+this.drawPath();
 return true;
     }
 
@@ -72,6 +61,9 @@ if(nextState.cameFrom !== this.state.cameFrom) {
     const { q, r, s } = JSON.parse(l);
     const { x, y } = this.hexToPixel(this.Hex(q, r));
     this.drawHex(this.canvasView, this.Point(x, y), 1, "black", "green", 0.1);
+    var from = JSON.parse(nextState.cameFrom[l]);
+    var fromCoord = this.hexToPixel(this.Hex(from.q, from.r));
+    this.drawArrow(fromCoord.x, fromCoord.y, x, y);
   }
   return true;
 }
@@ -88,7 +80,7 @@ drawHexes() {
   let qRightSide = Math.round((canvasWidth - hexOrigin.x)/horizDist);
   let rTopSide = Math.round(hexOrigin.y/vertDist);
   let rBottomSide = Math.round((canvasHeight - hexOrigin.y)/vertDist);
-
+  var hexPathMap = [];
   var p = 0;
   for (let r = 0; r <= rBottomSide; r++) {
     if(r%2 == 0 && r !==0) {
@@ -99,6 +91,10 @@ drawHexes() {
         if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
           this.drawHex(this.canvasHex, this.Point(x,y), 1, "black", "grey");
           /*this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q-p, r, -(q - p) - r));*/
+          var bottomH = JSON.stringify(this.Hex(q-p, r, -(q - p) - r));
+          if(!this.state.obstacles.includes(bottomH)) {
+            hexPathMap.push(bottomH);
+          }
         }
     }
   }
@@ -113,9 +109,18 @@ var n = 0;
           if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
         this.drawHex(this.canvasHex, this.Point(x,y), 1, "black", "grey");
         /*this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q+n, r, - (q + n) - r));*/
+        var topH = JSON.stringify(this.Hex(q+n, r, - (q + n) - r));
+        if(!this.state.obstacles.includes(topH)) {
+          hexPathMap.push(topH);
+        }
       }
     }
   }
+  hexPathMap = [].concat(hexPathMap);
+  this.setState(
+    {hexPathMap: hexPathMap},
+    this.breadthFirstSearchCallback = () => this.breadthFirstSearch(this.state.playerPosition)
+  )
 }
 
 
@@ -303,7 +308,8 @@ drawNeighbors(h) {
      const { q, r, s } = this.cubeRound(this.pixelToHex(this.Point(offsetX, offsetY)));
      const { x, y } = this.hexToPixel(this.Hex(q, r, s));
      let playerPosition = this.state.playerPosition;
-     this.getDistanceLine(this.Hex(0,0,0), this.Hex(q,r,s));
+     /*this.getDistanceLine(this.Hex(0,0,0), this.Hex(q,r,s));*/
+     this.getPath(this.Hex(playerPosition.q, playerPosition.r, playerPosition.s), this.Hex(q,r,s));
       if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
 this.setState({
   currentHex: {q, r, s, x, y}
@@ -311,45 +317,88 @@ this.setState({
 }
    }
 
-   handleClick() {
-this.addObstacles();
-   }
-
-addObstacles() {
-  const { q, r, s } = this.state.currentHex;
-  let obstacles = this.state.obstacles;
-  if(!obstacles.includes(JSON.stringify(this.Hex(q, r, s)))) {
-    obstacles = [].concat(obstacles, JSON.stringify(this.Hex(q, r, s)))
-  } else {
-    obstacles.map((l,i) => {
-      if(l == JSON.stringify(this.Hex(q, r, s))) {
-        obstacles = obstacles.slice(0, i).concat(obstacles.slice(i+1));
-      }
+getPath(start, current) {
+  const { cameFrom } = this.state;
+  start = JSON.stringify(start);
+  current = JSON.stringify(current);
+  if(cameFrom[current] != undefined) {
+    var path = [current];
+    while (current != start) {
+      current = cameFrom[current];
+      path.push(current);
+    }
+    path = [].concat(path);
+    this.setState({
+      path: path
     })
   }
-  this.setState({
-    obstacles: obstacles
+}
+
+drawPath() {
+let path = this.state.path;
+for (let i = 0; i <= path.length - 1; i++) {
+  const {q,r} = JSON.parse(path[i]);
+  const {x,y} = this.hexToPixel(this.Hex(q,r));
+  this.drawHex(this.canvasInteraction, this.Point(x,y), 1, "black", "red");
+}
+}
+
+drawArrow(fromx, fromy, tox, toy){
+                var ctx = this.canvasView.getContext("2d");
+                var headlen = 5;
+                var angle = Math.atan2(toy-fromy,tox-fromx);
+                ctx.beginPath();
+                ctx.moveTo(fromx, fromy);
+                ctx.lineTo(tox, toy);
+                ctx.strokeStyle = "#cc0000";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(tox, toy);
+                ctx.globalAlpha = 0.3;
+                ctx.lineTo(tox-headlen*Math.cos(angle-Math.PI/7),toy-headlen*Math.sin(angle-Math.PI/7));
+                ctx.lineTo(tox-headlen*Math.cos(angle+Math.PI/7),toy-headlen*Math.sin(angle+Math.PI/7));
+                ctx.lineTo(tox, toy);
+                ctx.lineTo(tox-headlen*Math.cos(angle-Math.PI/7),toy-headlen*Math.sin(angle-Math.PI/7));
+                ctx.strokeStyle = "#cc0000";
+                ctx.lineWidth = 5;
+                ctx.stroke();
+                ctx.fillStyle = "#cc0000";
+                ctx.fill();
+            }
+
+   handleClick() {
+const { currentHex, cameFrom } = this.state;
+const { q,r,s } = currentHex;
+if(cameFrom[JSON.stringify(this.Hex(q,r,s))]) {
+  this.setState(
+    {playerPosition: this.Hex(q,r,s)},
+    this.breadthFirstSearchCallback = () => this.breadthFirstSearch(this.state.playerPosition)
+  )
+}
+   }
+
+drawObstacles() {
+  this.state.obstacles.map((l) => {
+    const {q,r,s} = JSON.parse(l);
+    const {x,y} = this.hexToPixel(this.Hex(q,r,s));
+    this.drawHex(this.canvasHex, this.Point(x,y), 1, "black", "black");
   })
 }
 
-handleExpandClick() {
-var frontier = this.state.frontier;
-var cameFrom = this.state.cameFrom;
-if(frontier == 0) {
-  frontier.push(this.Hex(0,0,0));
-  cameFrom[JSON.stringify(this.Hex(0,0,0))] = JSON.stringify(null);
-}
-let n = 0;
-while (n<1) {
+breadthFirstSearch(playerPosition) {
+var frontier = [playerPosition];
+var cameFrom = {};
+cameFrom[JSON.stringify(playerPosition)] = JSON.stringify(playerPosition);
+while (frontier.length != 0) {
   var current = frontier.shift();
   let arr = this.getNeighbors(current);
   arr.map((l) => {
-    if(!cameFrom.hasOwnProperty(JSON.stringify(l)) && !this.state.obstacles.includes(JSON.stringify(l))) {
+    if(!cameFrom.hasOwnProperty(JSON.stringify(l)) && this.state.hexPathMap.includes(JSON.stringify(l))) {
       frontier.push(l);
       cameFrom[JSON.stringify(l)] = JSON.stringify(current);
     }
   })
-  n++
 }
 cameFrom = Object.assign({}, cameFrom);
 this.setState({
