@@ -17,7 +17,8 @@ export default class Canvas extends React.Component {
       obstacles: DUMMY_OBSTACLES,
       cameFrom: {},
       hexPathMap: [],
-      path: []
+      path: [],
+      hexSides: []
     }
   }
   componentWillMount() {
@@ -273,7 +274,7 @@ linearInt(a, b, t) {
      const ctx = canvasID. getContext("2d");
      ctx.beginPath();
      ctx.fillStyle = fillColor;
-     ctx.globalAlpha = 0.2;
+     ctx.globalAlpha = 0.5;
      ctx.moveTo(c0.x, c0.y);
      ctx.lineTo(c1.x, c1.y);
      ctx.lineTo(c2.x, c2.y);
@@ -398,20 +399,43 @@ if(path == 0) {
 }
 
 visibleField() {
-  const { playerPosition } = this.state;
+  const { playerPosition, hexSides } = this.state;
+
   let center = this.hexToPixel(playerPosition);
   for (let i = 0; i < 360; i++) {
   let beam = this.getHexBeamsCoord(center, i, 800);
-  let lineStart = {x: 503.92304845413264, y: 240};
-  let lineEnd = {x: 555.884572681199, y: 330};
-  this.drawLine(this.canvasInteraction, lineStart, lineEnd, 1, "red")
-  let intersect = this.lineIntersect(center.x, center.y, beam.x, beam.y, lineStart.x, lineStart.y, lineEnd.x, lineEnd.y);
+for (let i = 0; i < hexSides.length; i++) {
+  let side = JSON.parse(hexSides[i]);
+
+  let intersect = this.lineIntersect(center.x, center.y, beam.x, beam.y, side.start.x, side.start.y, side.end.x, side.end.y);
   if(intersect) {
   this.drawLine(this.canvasInteraction, center, intersect, 1, "yellow");
-} else {
-    this.drawLine(this.canvasInteraction, center, beam, 1, "yellow");
+  break;
 }
-  }
+}
+}
+}
+
+getObstacleSides() {
+  const { obstacles } = this.state;
+  let arr = [];
+  obstacles.map((l)=> {
+    let hexCenter = this.hexToPixel(JSON.parse(l));
+    for (let i = 0; i < 6; i++) {
+      let start = this.getHexCornerCoord(hexCenter, i);
+      let end = this.getHexCornerCoord(hexCenter, i + 1);
+      let side = JSON.stringify({start, end});
+      if(!arr.includes(side)) {
+        arr.push(side);
+      }
+    }
+  })
+  this.setState({
+    hexSides: arr
+  },
+  this.visibleFieldCallback = () => this.visibleField()
+)
+
 }
 
 between(a, b, c) {
@@ -486,7 +510,7 @@ cameFrom = Object.assign({}, cameFrom);
 this.setState({
   cameFrom: cameFrom
 },
-this.visibleFieldCallback = () => this.visibleField()
+this.getObstacleSidesCallback = () => this.getObstacleSides()
 )
 }
 
