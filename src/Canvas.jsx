@@ -18,7 +18,8 @@ export default class Canvas extends React.Component {
       cameFrom: {},
       hexPathMap: [],
       path: [],
-      hexSides: []
+      hexSides: [],
+      nearestObstacles: []
     }
   }
   componentWillMount() {
@@ -62,9 +63,9 @@ if(nextState.cameFrom !== this.state.cameFrom) {
     const { q, r, s } = JSON.parse(l);
     const { x, y } = this.hexToPixel(this.Hex(q, r));
     this.drawHex(this.canvasView, this.Point(x, y), 1, "black", "green", 0.1);
-    var from = JSON.parse(nextState.cameFrom[l]);
+    /*var from = JSON.parse(nextState.cameFrom[l]);
     var fromCoord = this.hexToPixel(this.Hex(from.q, from.r));
-    this.drawArrow(fromCoord.x, fromCoord.y, x, y);
+    this.drawArrow(fromCoord.x, fromCoord.y, x, y);*/
   }
   return true;
 }
@@ -417,9 +418,9 @@ for (let i = 0; i < hexSides.length; i++) {
 }
 
 getObstacleSides() {
-  const { obstacles } = this.state;
+  const { nearestObstacles } = this.state;
   let arr = [];
-  obstacles.map((l)=> {
+  nearestObstacles.map((l)=> {
     let hexCenter = this.hexToPixel(JSON.parse(l));
     for (let i = 0; i < 6; i++) {
       let start = this.getHexCornerCoord(hexCenter, i);
@@ -493,22 +494,28 @@ drawObstacles() {
 }
 
 breadthFirstSearch(playerPosition) {
+let { obstacles, hexPathMap } = this.state;
 var frontier = [playerPosition];
 var cameFrom = {};
+var nearestObstacles = [];
 cameFrom[JSON.stringify(playerPosition)] = JSON.stringify(playerPosition);
 while (frontier.length != 0) {
   var current = frontier.shift();
   let arr = this.getNeighbors(current);
   arr.map((l) => {
-    if(!cameFrom.hasOwnProperty(JSON.stringify(l)) && this.state.hexPathMap.includes(JSON.stringify(l))) {
+    if(!cameFrom.hasOwnProperty(JSON.stringify(l)) && hexPathMap.includes(JSON.stringify(l))) {
       frontier.push(l);
       cameFrom[JSON.stringify(l)] = JSON.stringify(current);
+    }
+    if(obstacles.includes(JSON.stringify(l))) {
+      nearestObstacles.push(JSON.stringify(l))
     }
   })
 }
 cameFrom = Object.assign({}, cameFrom);
 this.setState({
-  cameFrom: cameFrom
+  cameFrom: cameFrom,
+  nearestObstacles: nearestObstacles
 },
 this.getObstacleSidesCallback = () => this.getObstacleSides()
 )
