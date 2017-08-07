@@ -38,6 +38,8 @@ export default class Canvas extends React.Component {
     this.canvasInteraction.height = canvasHeight;
     this.canvasView.width = canvasWidth;
     this.canvasView.height = canvasHeight;
+    this.canvasCoordinates.width = canvasWidth;
+    this.canvasCoordinates.height = canvasHeight;
     this.getCanvasPosition(this.canvasInteraction);
     this.drawHex(this.canvasInteraction, this.hexToPixel(this.state.playerPosition), 1, "grey", "yellow", 0.2);
     this.drawHexes();
@@ -92,7 +94,7 @@ drawHexes() {
         const { x, y } = this.hexToPixel(this.Hex(q-p, r));
         if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
           this.drawHex(this.canvasHex, this.Point(x,y), 1, "black", "grey");
-          /*this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q-p, r, -(q - p) - r));*/
+          this.drawHexCoordinates(this.canvasCoordinates, this.Point(x,y), this.Hex(q-p, r, -(q - p) - r));
           var bottomH = JSON.stringify(this.Hex(q-p, r, -(q - p) - r));
           if(!this.state.obstacles.includes(bottomH)) {
             hexPathMap.push(bottomH);
@@ -110,7 +112,7 @@ var n = 0;
         const { x, y } = this.hexToPixel(this.Hex(q+n, r));
           if ((x >hexWidth/2 && x < canvasWidth - hexWidth/2) && (y > hexHeight/2 && y < canvasHeight - hexHeight/2)) {
         this.drawHex(this.canvasHex, this.Point(x,y), 1, "black", "grey");
-        /*this.drawHexCoordinates(this.canvasHex, this.Point(x,y), this.Hex(q+n, r, - (q + n) - r));*/
+        this.drawHexCoordinates(this.canvasCoordinates, this.Point(x,y), this.Hex(q+n, r, - (q + n) - r));
         var topH = JSON.stringify(this.Hex(q+n, r, - (q + n) - r));
         if(!this.state.obstacles.includes(topH)) {
           hexPathMap.push(topH);
@@ -174,8 +176,9 @@ getCanvasPosition(canvasID) {
    }
 
 cubeDirection(direction) {
-  const cubeDirections = [this.Hex(1, 0, -1), this.Hex(1, -1, 0), this.Hex(0, -1, 1),
-                          this.Hex(-1, 0, 1), this.Hex(-1, 1, 0), this.Hex(0, 1, -1)];
+  const cubeDirections = [this.Hex(0, 1, -1), this.Hex(-1, 1, 0), this.Hex(-1, 0, 1),
+                          this.Hex(0, -1, 1), this.Hex(1, -1, 0), this.Hex(1, 0, -1)
+                          ];
 return cubeDirections[direction];
 }
 
@@ -418,17 +421,28 @@ for (let i = 0; i < hexSides.length; i++) {
 }
 
 getObstacleSides() {
-  const { nearestObstacles } = this.state;
+  const { nearestObstacles, playerPosition } = this.state;
+  const { q,r,s } = playerPosition;
+  const playerPositionCenter = this.hexToPixel(this.Hex(q,r,s));
   let arr = [];
   nearestObstacles.map((l)=> {
     let hexCenter = this.hexToPixel(JSON.parse(l));
+      let fromPlayerToHex = Math.floor(this.getDistance(playerPositionCenter, hexCenter));
     for (let i = 0; i < 6; i++) {
-      let start = this.getHexCornerCoord(hexCenter, i);
-      let end = this.getHexCornerCoord(hexCenter, i + 1);
-      let side = JSON.stringify({start, end});
-      if(!arr.includes(side)) {
-        arr.push(side);
+      let neighbor = JSON.stringify(this.getCubeNeighbor(JSON.parse(l), i));
+      if(!nearestObstacles.includes(neighbor)) {
+        let start = this.getHexCornerCoord(hexCenter, i);
+        let end = this.getHexCornerCoord(hexCenter, i + 1);
+        let center = {x: ((start.x + end.x)/2), y: ((start.y + end.y)/2)};
+        let fromPlayerToSide = Math.floor(this.getDistance(playerPositionCenter, center));
+        let side = JSON.stringify({start, end});
+        if(fromPlayerToSide <= fromPlayerToHex && !arr.includes(side)) {
+          arr.push(side);
+        } else {
+          continue;
+        }
       }
+
     }
   })
   this.setState({
@@ -437,6 +451,10 @@ getObstacleSides() {
   this.visibleFieldCallback = () => this.visibleField()
 )
 
+}
+
+getDistance(L1, L2) {
+  return Math.hypot(L2.x-L1.x, L2.y-L1.y);
 }
 
 between(a, b, c) {
