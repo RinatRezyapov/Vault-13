@@ -1,6 +1,6 @@
 Inspired by article http://www.redblobgames.com/grids/hexagons/
 
-I'm learning programming language in free time after work. 
+Demo: https://codepen.io/RinatRezyapov/pen/bZLZEm
 
 I always wanted to create a game using javascript from scratch without using any framewroks or libraries.
 
