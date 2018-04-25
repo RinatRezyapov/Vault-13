@@ -1,47 +1,26 @@
 {
-  "name": "react-webpack-babel",
-  "version": "0.0.3",
-  "description": "React Webpack Babel Starter Kit",
+  "name": "Vault-13",
+  "version": "0.0.1",
+  "description": "JavaScript Game",
   "main": "''",
   "scripts": {
-    "build": "webpack --config webpack.production.config.js --progress --profile --colors",
-    "start": "webpack-dev-server --progress --profile --colors",
-    "lint": "eslint --ext js --ext jsx src || exit 0",
-    "dev": " webpack-dashboard -- webpack-dev-server --progress --profile --colors"
+    "start": "webpack-dev-server --mode development --open"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/alicoding/react-webpack-babel"
-  },
-  "author": "Ali Al Dallal",
+  "author": "Rinat Rezyapov",
   "license": "MIT",
-  "homepage": "https://github.com/alicoding/react-webpack-babel#readme",
+  "homepage": "https://github.com/RinatRezyapov/Vault-13",
   "dependencies": {
-    "node-sass": "^4.3.0",
-    "react": "15.4.2",
-    "react-dom": "15.4.2",
-    "sass-loader": "^6.0.2"
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
+    "webpack-cli": "^2.0.15"
   },
   "devDependencies": {
-    "babel-core": "^6.23.1",
-    "babel-loader": "^6.3.2",
-    "babel-plugin-transform-class-properties": "^6.22.0",
-    "babel-plugin-transform-decorators-legacy": "^1.3.4",
-    "babel-plugin-transform-runtime": "^6.22.0",
-    "babel-preset-es2015": "6.22.0",
-    "babel-preset-react": "^6.23.0",
-    "babel-runtime": "^6.22.0",
-    "css-loader": "0.26.1",
-    "extract-text-webpack-plugin": "^v2.0.0-rc.1",
-    "file-loader": "^0.10.0",
-    "html-webpack-plugin": "^2.26.0",
-    "postcss-loader": "^1.2.2",
-    "react-hot-loader": "^3.0.0-beta.6",
-    "style-loader": "0.13.1",
-    "url-loader": "0.5.7",
-    "webpack": "^2.2.1",
-    "webpack-cleanup-plugin": "^0.4.2",
-    "webpack-dashboard": "^0.3.0",
-    "webpack-dev-server": "^2.4.1"
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "webpack": "^4.6.0",
+    "webpack-dev-server": "^3.1.3"
   }
 }
