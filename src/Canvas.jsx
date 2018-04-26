@@ -31,7 +31,8 @@ export default class Canvas extends React.Component {
             hexPathMap: [],
             path: [],
             hexSides: [],
-            nearestObstacles: []
+            nearestObstacles: [],
+            playerSight: 200
         }
     }
     componentWillMount() {
@@ -500,7 +501,7 @@ export default class Canvas extends React.Component {
             playerPosition,
             hexSides
         } = this.state;
-
+        let endPoints = [];
         let center = this.hexToPixel(playerPosition);
         for (let i = 0; i < 360; i++) {
             let beam = this.getHexBeamsCoord(center, i, 800);
@@ -509,9 +510,25 @@ export default class Canvas extends React.Component {
 
                 let intersect = this.lineIntersect(center.x, center.y, beam.x, beam.y, side.start.x, side.start.y, side.end.x, side.end.y);
                 if (intersect) {
-                    this.drawLine(this.canvasInteraction, center, intersect, 1, "yellow");
+                    const distance = this.getDistance(center, intersect);
+                    if (distance < this.state.playerSight) {
+                        //this.drawLine(this.canvasInteraction, center, intersect, 1, "yellow");
+                        endPoints.push(intersect)
+                    } else {
+                        const t = this.state.playerSight / distance;
+                        const point = this.Point((1 - t) * center.x + t * intersect.x, (1 - t) * center.y + t * intersect.y);
+                        //this.drawLine(this.canvasInteraction, center, point, 1, "yellow");
+                        endPoints.push(point)
+                    }
                     break;
                 }
+            }
+        }
+        for (let i = 0; i < endPoints.length; i++) {
+            if (i + 1 === 360) {
+                this.drawLine(this.canvasInteraction, endPoints[i], endPoints[0], 1, "yellow");
+            } else {
+                this.drawLine(this.canvasInteraction, endPoints[i], endPoints[i + 1], 1, "yellow");
             }
         }
     }
