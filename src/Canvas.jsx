@@ -59,10 +59,15 @@ export default class Canvas extends React.Component {
         this.canvasView.height = canvasHeight;
         this.canvasCoordinates.width = canvasWidth;
         this.canvasCoordinates.height = canvasHeight;
+        this.canvasFog.width = canvasWidth;
+        this.canvasFog.height = canvasHeight;
+        this.canvasFogHide.width = canvasWidth;
+        this.canvasFogHide.height = canvasHeight;
         this.getCanvasPosition(this.canvasInteraction);
         this.drawHex(this.canvasInteraction, this.hexToPixel(this.state.playerPosition), 1, "grey", "yellow", 0.2);
         this.drawHexes();
         this.drawObstacles();
+        this.addFogOfWar(this.canvasFog);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -90,6 +95,13 @@ export default class Canvas extends React.Component {
 
 
         return false;
+    }
+
+    addFogOfWar(canvas) {
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, this.state.canvasSize.canvasWidth, this.state.canvasSize.canvasHeight);
+        ctx.globalCompositeOperation = "destination-out";
     }
 
     drawHexes() {
@@ -524,15 +536,55 @@ export default class Canvas extends React.Component {
                 }
             }
         }
+        this.clearFogOfWar(endPoints);
+    }
+
+    clearFogOfWar(endPoints) {
+        const { playerPosition } = this.state;
+        const center = this.hexToPixel(playerPosition);
+        const ctxCanvasFog = this.canvasFog.getContext("2d");
+        ctxCanvasFog.beginPath();
+        const rGCanvasFog = ctxCanvasFog.createRadialGradient(center.x, center.y, this.state.playerSight - 100, center.x, center.y, this.state.playerSight);
+        rGCanvasFog.addColorStop(0, "rgba(0, 0, 0, 1)");
+        rGCanvasFog.addColorStop(0.9, "rgba(0, 0, 0, 0.1)");
+        rGCanvasFog.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctxCanvasFog.fillStyle = rGCanvasFog;
+        ctxCanvasFog.moveTo(endPoints[0].x, endPoints[0].y);
+
+        const ctxCanvasFogHide = this.canvasFogHide.getContext("2d");
+        ctxCanvasFogHide.globalCompositeOperation = "source-out";
+        ctxCanvasFogHide.clearRect(0, 0, this.state.canvasSize.canvasWidth, this.state.canvasSize.canvasHeight);
+        ctxCanvasFogHide.fillStyle = "rgba(0, 0, 0, 0.7)";
+        ctxCanvasFogHide.fillRect(0, 0, this.state.canvasSize.canvasWidth, this.state.canvasSize.canvasHeight);
+
+        ctxCanvasFogHide.beginPath();
+        const rGCanvasFogHide = ctxCanvasFogHide.createRadialGradient(center.x, center.y, this.state.playerSight - 100, center.x, center.y, this.state.playerSight);
+        rGCanvasFogHide.addColorStop(0, "rgba(0, 0, 0, 1)");
+        rGCanvasFogHide.addColorStop(0.9, "rgba(0, 0, 0, 0.1)");
+        rGCanvasFogHide.addColorStop(1, "rgba(0, 0, 0, 0)");
+        ctxCanvasFogHide.globalCompositeOperation = "destination-out";
+        ctxCanvasFogHide.fillStyle = rGCanvasFogHide;
+        ctxCanvasFogHide.moveTo(endPoints[0].x, endPoints[0].y);
+
         for (let i = 0; i < endPoints.length; i++) {
             if (i + 1 === 360) {
+                ctxCanvasFog.lineTo(endPoints[i].x, endPoints[i].y)
+                ctxCanvasFogHide.lineTo(endPoints[i].x, endPoints[i].y)
                 this.drawLine(this.canvasInteraction, endPoints[i], endPoints[0], 1, "yellow");
             } else {
+                ctxCanvasFog.lineTo(endPoints[i].x, endPoints[i].y)
+                ctxCanvasFogHide.lineTo(endPoints[i].x, endPoints[i].y)
                 this.drawLine(this.canvasInteraction, endPoints[i], endPoints[i + 1], 1, "yellow");
             }
         }
-    }
 
+        ctxCanvasFogHide.closePath();
+        ctxCanvasFogHide.fill();
+
+        ctxCanvasFog.closePath();
+        ctxCanvasFog.fill();
+    }
+ 
     getObstacleSides() {
         const {
             nearestObstacles,
@@ -705,6 +757,8 @@ export default class Canvas extends React.Component {
                 <canvas ref={canvasHex => this.canvasHex = canvasHex }> </canvas>
                 <canvas ref={canvasCoordinates => this.canvasCoordinates = canvasCoordinates }> </canvas>
                 <canvas ref={canvasView => this.canvasView = canvasView }> </canvas>
+                <canvas ref={canvasFog => this.canvasFog = canvasFog}></canvas>
+                <canvas ref={canvasFogHide => this.canvasFogHide = canvasFogHide}></canvas>
                 <canvas ref={canvasInteraction => this.canvasInteraction = canvasInteraction} onMouseMove = {this.handleMouseMove} onClick={this.handleClick}> </canvas>
           </React.Fragment>
         )
