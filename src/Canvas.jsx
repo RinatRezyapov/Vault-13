@@ -1,7 +1,5 @@
 import React from 'react';
-
-var DUMMY_OBSTACLES = ['{"q":4,"r":-2,"s":-2}', '{"q":4,"r":-1,"s":-3}', '{"q":4,"r":0,"s":-4}', '{"q":4,"r":1,"s":-5}', '{"q":3,"r":2,"s":-5}', '{"q":2,"r":3,"s":-5}', '{"q":1,"r":4,"s":-5}', '{"q":0,"r":5,"s":-5}', '{"q":-1,"r":6,"s":-5}', '{"q":-2,"r":7,"s":-5}', '{"q":4,"r":-4,"s":0}', '{"q":3,"r":-4,"s":1}', '{"q":2,"r":-4,"s":2}', '{"q":1,"r":-4,"s":3}', '{"q":2,"r":-5,"s":3}', '{"q":3,"r":-6,"s":3}', '{"q":4,"r":-7,"s":3}', '{"q":5,"r":-9,"s":4}', '{"q":6,"r":-9,"s":3}', '{"q":7,"r":-9,"s":2}', '{"q":8,"r":-9,"s":1}', '{"q":9,"r":-9,"s":0}', '{"q":10,"r":-9,"s":-1}', '{"q":11,"r":-9,"s":-2}', '{"q":12,"r":-9,"s":-3}', '{"q":13,"r":-9,"s":-4}', '{"q":14,"r":-9,"s":-5}', '{"q":15,"r":-9,"s":-6}', '{"q":15,"r":-8,"s":-7}', '{"q":14,"r":-7,"s":-7}', '{"q":14,"r":-6,"s":-8}', '{"q":13,"r":-5,"s":-8}', '{"q":13,"r":-4,"s":-9}', '{"q":12,"r":-3,"s":-9}', '{"q":12,"r":-2,"s":-10}', '{"q":11,"r":-1,"s":-10}', '{"q":11,"r":0,"s":-11}', '{"q":10,"r":1,"s":-11}', '{"q":10,"r":2,"s":-12}', '{"q":9,"r":3,"s":-12}', '{"q":9,"r":4,"s":-13}', '{"q":8,"r":5,"s":-13}', '{"q":8,"r":6,"s":-14}', '{"q":7,"r":7,"s":-14}', '{"q":7,"r":8,"s":-15}', '{"q":6,"r":9,"s":-15}', '{"q":5,"r":9,"s":-14}', '{"q":4,"r":9,"s":-13}', '{"q":3,"r":9,"s":-12}', '{"q":2,"r":9,"s":-11}', '{"q":1,"r":9,"s":-10}', '{"q":0,"r":9,"s":-9}', '{"q":-1,"r":9,"s":-8}', '{"q":-2,"r":9,"s":-7}', '{"q":-3,"r":9,"s":-6}', '{"q":-4,"r":9,"s":-5}', '{"q":-5,"r":9,"s":-4}', '{"q":-5,"r":8,"s":-3}', '{"q":-5,"r":7,"s":-2}', '{"q":-5,"r":6,"s":-1}', '{"q":-5,"r":5,"s":0}', '{"q":-4,"r":4,"s":0}', '{"q":-3,"r":3,"s":0}', '{"q":-2,"r":-1,"s":3}', '{"q":-2,"r":-2,"s":4}', '{"q":-4,"r":1,"s":3}', '{"q":-4,"r":2,"s":2}', '{"q":-5,"r":3,"s":2}', '{"q":-7,"r":4,"s":3}', '{"q":-6,"r":4,"s":2}', '{"q":-8,"r":4,"s":4}', '{"q":-9,"r":4,"s":5}', '{"q":-10,"r":4,"s":6}', '{"q":-11,"r":4,"s":7}', '{"q":-12,"r":4,"s":8}', '{"q":-12,"r":2,"s":10}', '{"q":-12,"r":3,"s":9}', '{"q":-13,"r":4,"s":9}', '{"q":-13,"r":5,"s":8}', '{"q":-14,"r":6,"s":8}', '{"q":-14,"r":7,"s":7}', '{"q":-15,"r":8,"s":7}', '{"q":-15,"r":9,"s":6}', '{"q":-14,"r":9,"s":5}', '{"q":-13,"r":9,"s":4}', '{"q":-12,"r":9,"s":3}', '{"q":-11,"r":9,"s":2}', '{"q":-10,"r":9,"s":1}', '{"q":-9,"r":9,"s":0}', '{"q":-8,"r":9,"s":-1}', '{"q":-7,"r":9,"s":-2}', '{"q":-6,"r":9,"s":-3}', '{"q":-11,"r":1,"s":10}', '{"q":-11,"r":0,"s":11}', '{"q":-10,"r":-1,"s":11}', '{"q":-10,"r":-2,"s":12}', '{"q":-9,"r":-3,"s":12}', '{"q":-9,"r":-4,"s":13}', '{"q":-8,"r":-5,"s":13}', '{"q":-8,"r":-6,"s":14}', '{"q":-7,"r":-7,"s":14}', '{"q":-7,"r":-8,"s":15}', '{"q":-6,"r":-9,"s":15}', '{"q":-5,"r":-9,"s":14}', '{"q":-4,"r":-9,"s":13}', '{"q":-3,"r":-9,"s":12}', '{"q":-2,"r":-9,"s":11}', '{"q":-1,"r":-9,"s":10}', '{"q":0,"r":-9,"s":9}', '{"q":1,"r":-9,"s":8}', '{"q":2,"r":-9,"s":7}', '{"q":3,"r":-9,"s":6}', '{"q":4,"r":-9,"s":5}', '{"q":-2,"r":-8,"s":10}', '{"q":-3,"r":-7,"s":10}', '{"q":-4,"r":-6,"s":10}', '{"q":-5,"r":-5,"s":10}', '{"q":-6,"r":-4,"s":10}', '{"q":-7,"r":-4,"s":11}', '{"q":-6,"r":-2,"s":8}', '{"q":-6,"r":-1,"s":7}', '{"q":-6,"r":0,"s":6}', '{"q":-6,"r":1,"s":5}', '{"q":7,"r":-2,"s":-5}', '{"q":8,"r":-2,"s":-6}', '{"q":9,"r":-3,"s":-6}', '{"q":10,"r":-3,"s":-7}', '{"q":4,"r":5,"s":-9}', '{"q":4,"r":6,"s":-10}', '{"q":5,"r":6,"s":-11}', '{"q":5,"r":7,"s":-12}']
-
+import { dummyObstacles } from './entities/constants.js';
 
 export default class Canvas extends React.Component {
     constructor(props) {
@@ -26,7 +24,7 @@ export default class Canvas extends React.Component {
                 r: 0,
                 s: 0
             },
-            obstacles: DUMMY_OBSTACLES,
+            obstacles: dummyObstacles,
             cameFrom: {},
             hexPathMap: [],
             path: [],
@@ -55,10 +53,6 @@ export default class Canvas extends React.Component {
         this.canvasHex.height = canvasHeight;
         this.canvasInteraction.width = canvasWidth;
         this.canvasInteraction.height = canvasHeight;
-        this.canvasView.width = canvasWidth;
-        this.canvasView.height = canvasHeight;
-        this.canvasCoordinates.width = canvasWidth;
-        this.canvasCoordinates.height = canvasHeight;
         this.canvasFog.width = canvasWidth;
         this.canvasFog.height = canvasHeight;
         this.canvasFogHide.width = canvasWidth;
@@ -71,29 +65,6 @@ export default class Canvas extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if (nextState.cameFrom !== this.state.cameFrom) {
-            const {
-                canvasWidth,
-                canvasHeight
-            } = this.state.canvasSize;
-            const ctx = this.canvasView.getContext("2d");
-            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-            for (let l in nextState.cameFrom) {
-                const {
-                    q,
-                    r,
-                    s
-                } = JSON.parse(l);
-                const {
-                    x,
-                    y
-                } = this.hexToPixel(this.Hex(q, r));
-                this.drawHex(this.canvasView, this.Point(x, y), 1, "black", "green", 0.1);
-            }
-            return true;
-        }
-
-
         return false;
     }
 
@@ -132,11 +103,10 @@ export default class Canvas extends React.Component {
                     y
                 } = this.hexToPixel(this.Hex(q - p, r));
                 if ((x > hexWidth / 2 && x < canvasWidth - hexWidth / 2) && (y > hexHeight / 2 && y < canvasHeight - hexHeight / 2)) {
-                    this.drawHex(this.canvasHex, this.Point(x, y), 1, "black", "grey");
-                    this.drawHexCoordinates(this.canvasCoordinates, this.Point(x, y), this.Hex(q - p, r, -(q - p) - r));
-                    var bottomH = JSON.stringify(this.Hex(q - p, r, -(q - p) - r));
-                    if (!this.state.obstacles.includes(bottomH)) {
-                        hexPathMap.push(bottomH);
+                    this.drawHex(this.canvasHex, this.Point(x, y), 0.3, "#6bff02", "transparent");
+                    var bottomH = this.Hex(q - p, r, -(q - p) - r);
+                    if (!this.isHexIncluded(this.state.obstacles, bottomH)) {
+                        hexPathMap.push(this.Hex(q - p, r, -(q - p) - r));
                     }
                 }
             }
@@ -153,11 +123,10 @@ export default class Canvas extends React.Component {
                     y
                 } = this.hexToPixel(this.Hex(q + n, r));
                 if ((x > hexWidth / 2 && x < canvasWidth - hexWidth / 2) && (y > hexHeight / 2 && y < canvasHeight - hexHeight / 2)) {
-                    this.drawHex(this.canvasHex, this.Point(x, y), 1, "black", "grey");
-                    this.drawHexCoordinates(this.canvasCoordinates, this.Point(x, y), this.Hex(q + n, r, -(q + n) - r));
-                    var topH = JSON.stringify(this.Hex(q + n, r, -(q + n) - r));
-                    if (!this.state.obstacles.includes(topH)) {
-                        hexPathMap.push(topH);
+                    this.drawHex(this.canvasHex, this.Point(x, y), 0.3, "#6bff02", "transparent");
+                    var topH = this.Hex(q + n, r, -(q + n) - r);
+                    if (!this.isHexIncluded(this.state.obstacles, topH)) {
+                        hexPathMap.push(this.Hex(q + n, r, -(q + n) - r));
                     }
                 }
             }
@@ -356,7 +325,6 @@ export default class Canvas extends React.Component {
         const ctx = canvasID.getContext("2d");
         ctx.beginPath();
         ctx.fillStyle = fillColor;
-        ctx.globalAlpha = 0.5;
         ctx.moveTo(c0.x, c0.y);
         ctx.lineTo(c1.x, c1.y);
         ctx.lineTo(c2.x, c2.y);
@@ -601,11 +569,9 @@ export default class Canvas extends React.Component {
             if (i + 1 === 360) {
                 ctxCanvasFog.lineTo(endPoints[i].x, endPoints[i].y)
                 ctxCanvasFogHide.lineTo(endPoints[i].x, endPoints[i].y)
-                this.drawLine(this.canvasInteraction, endPoints[i], endPoints[0], 1, "yellow");
             } else {
                 ctxCanvasFog.lineTo(endPoints[i].x, endPoints[i].y)
                 ctxCanvasFogHide.lineTo(endPoints[i].x, endPoints[i].y)
-                this.drawLine(this.canvasInteraction, endPoints[i], endPoints[i + 1], 1, "yellow");
             }
         }
 
@@ -629,11 +595,11 @@ export default class Canvas extends React.Component {
         const playerPositionCenter = this.hexToPixel(this.Hex(q, r, s));
         let arr = [];
         nearestObstacles.map((l) => {
-            let hexCenter = this.hexToPixel(JSON.parse(l));
+            let hexCenter = this.hexToPixel(l);
             let fromPlayerToHex = Math.floor(this.getDistance(playerPositionCenter, hexCenter));
             for (let i = 0; i < 6; i++) {
-                let neighbor = JSON.stringify(this.getCubeNeighbor(JSON.parse(l), i));
-                if (!nearestObstacles.includes(neighbor)) {
+                let neighbor = this.getCubeNeighbor(l, i);
+                if (!this.isHexIncluded(nearestObstacles, neighbor)) {
                     let start = this.getHexCornerCoord(hexCenter, i);
                     let end = this.getHexCornerCoord(hexCenter, i + 1);
                     let center = {
@@ -746,16 +712,7 @@ export default class Canvas extends React.Component {
 
     drawObstacles() {
         this.state.obstacles.map((l) => {
-            const {
-                q,
-                r,
-                s
-            } = JSON.parse(l);
-            const {
-                x,
-                y
-            } = this.hexToPixel(this.Hex(q, r, s));
-            this.drawHex(this.canvasHex, this.Point(x, y), 1, "black", "black");
+            this.drawHex(this.canvasHex, this.hexToPixel(l), 1, "black", "black");
         })
     }
 
@@ -772,12 +729,12 @@ export default class Canvas extends React.Component {
             var current = frontier.shift();
             let arr = this.getNeighbors(current);
             arr.map((l) => {
-                if (!cameFrom.hasOwnProperty(JSON.stringify(l)) && hexPathMap.includes(JSON.stringify(l))) {
+                if (!cameFrom.hasOwnProperty(JSON.stringify(l)) && this.isHexIncluded(hexPathMap, l)) {
                     frontier.push(l);
                     cameFrom[JSON.stringify(l)] = JSON.stringify(current);
                 }
-                if (obstacles.includes(JSON.stringify(l))) {
-                    nearestObstacles.push(JSON.stringify(l))
+                if (this.isHexIncluded(obstacles, l)) {
+                    nearestObstacles.push(l)
                 }
             })
         }
@@ -790,12 +747,16 @@ export default class Canvas extends React.Component {
         )
     }
 
+    isHexIncluded(arr, hex) {
+        const result = arr.filter(v => (v.q === hex.q && v.r === hex.r && v.s === hex.s))
+        return result.length === 0 ? false : true
+    }
+
     render() {
         return (
             <React.Fragment>
+                <div className="background"></div>
                 <canvas ref={canvasHex => this.canvasHex = canvasHex }> </canvas>
-                <canvas ref={canvasCoordinates => this.canvasCoordinates = canvasCoordinates }> </canvas>
-                <canvas ref={canvasView => this.canvasView = canvasView }> </canvas>
                 <canvas ref={canvasFog => this.canvasFog = canvasFog}></canvas>
                 <canvas ref={canvasFogHide => this.canvasFogHide = canvasFogHide}></canvas>
                 <canvas ref={canvasInteraction => this.canvasInteraction = canvasInteraction} onMouseMove = {this.handleMouseMove} onClick={this.handleClick}> </canvas>
