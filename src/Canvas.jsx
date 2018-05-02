@@ -42,7 +42,7 @@ export default class Canvas extends React.Component {
             },
             hexParametres: hexParametres
         })
-    }
+    } 
 
     componentDidMount() {
         const {
