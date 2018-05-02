@@ -319,6 +319,14 @@ export default class Canvas extends React.Component {
         }
     }
 
+    PointWithAngle(x, y, a) {
+        return {
+            x: x,
+            y: y,
+            a: a,
+        }
+    }
+
     Hex(q, r, s) {
         return {
             q: q,
@@ -516,7 +524,7 @@ export default class Canvas extends React.Component {
         let endPoints = [];
         let center = this.hexToPixel(playerPosition);
         for (let i = 0; i < 360; i++) {
-            let beam = this.getHexBeamsCoord(center, i, 800);
+            let beam = this.getBeamsCoord(center, i, 800);
             for (let i = 0; i < hexSides.length; i++) {
                 let side = JSON.parse(hexSides[i]);
 
@@ -524,12 +532,11 @@ export default class Canvas extends React.Component {
                 if (intersect) {
                     const distance = this.getDistance(center, intersect);
                     if (distance < this.state.playerSight) {
-                        //this.drawLine(this.canvasInteraction, center, intersect, 1, "yellow");
-                        endPoints.push(intersect)
+                        const point = this.PointWithAngle(intersect.x, intersect.y, beam.a)
+                        endPoints.push(point)
                     } else {
                         const t = this.state.playerSight / distance;
-                        const point = this.Point((1 - t) * center.x + t * intersect.x, (1 - t) * center.y + t * intersect.y);
-                        //this.drawLine(this.canvasInteraction, center, point, 1, "yellow");
+                        const point = this.PointWithAngle((1 - t) * center.x + t * intersect.x, (1 - t) * center.y + t * intersect.y, beam.a);
                         endPoints.push(point)
                     }
                     break;
@@ -537,6 +544,30 @@ export default class Canvas extends React.Component {
             }
         }
         this.clearFogOfWar(endPoints);
+        if (this.isHexVisible(this.Hex(0,0,0), endPoints)) {
+            this.drawHex(this.canvasInteraction, this.hexToPixel(this.Hex(0,0,0)), 1, "black", "red");
+        }
+    }
+
+    isHexVisible(hex, endPoints) {
+        const playerCenter = this.hexToPixel(this.state.playerPosition);
+        const hexCenter = this.hexToPixel(hex);
+        const deltaX = hexCenter.x - playerCenter.x;
+        const deltaY = hexCenter.y - playerCenter.y;
+        let angle = Math.round(Math.atan2(deltaY, deltaX) * 180 / Math.PI);
+        if (angle < 0) angle = angle + 360;
+        const beam = endPoints.filter(v => v.a === angle)[0];
+        if (beam) {
+            for (let i = 0; i < 6; i++) {
+                const start = this.getHexCornerCoord(hexCenter, i);
+                const end =this.getHexCornerCoord(hexCenter, i + 1);
+                const intersect = this.lineIntersect(playerCenter.x, playerCenter.y, beam.x, beam.y, start.x, start.y, end.x, end.y);
+                if (intersect !== false) {
+                    return true
+                }
+            }
+        }
+        return false;
     }
 
     clearFogOfWar(endPoints) {
@@ -703,6 +734,14 @@ export default class Canvas extends React.Component {
         let x = center.x + range * Math.cos(angle_rad);
         let y = center.y + range * Math.sin(angle_rad);
         return this.Point(x, y);
+    }
+
+    getBeamsCoord(center, i, range) {
+        let angle_deg = 1 * i;
+        let angle_rad = Math.PI / 180 * angle_deg;
+        let x = center.x + range * Math.cos(angle_rad);
+        let y = center.y + range * Math.sin(angle_rad);
+        return this.PointWithAngle(x, y, angle_deg);
     }
 
     drawObstacles() {
