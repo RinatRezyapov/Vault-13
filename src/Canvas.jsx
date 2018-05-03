@@ -24,13 +24,19 @@ export default class Canvas extends React.Component {
                 r: 0,
                 s: 0
             },
+            enemyPosition: {
+                q: 0,
+                r: 0,
+                s: 0
+            },
             obstacles: dummyObstacles,
             cameFrom: {},
             hexPathMap: [],
             path: [],
             hexSides: [],
             nearestObstacles: [],
-            playerSight: 200
+            endPoints: [],
+            playerSight: 200,
         }
     }
     componentWillMount() {
@@ -51,6 +57,8 @@ export default class Canvas extends React.Component {
         } = this.state.canvasSize;
         this.canvasHex.width = canvasWidth;
         this.canvasHex.height = canvasHeight;
+        this.canvasView.width = canvasWidth;
+        this.canvasView.height = canvasHeight;
         this.canvasInteraction.width = canvasWidth;
         this.canvasInteraction.height = canvasHeight;
         this.canvasFog.width = canvasWidth;
@@ -60,11 +68,28 @@ export default class Canvas extends React.Component {
         this.getCanvasPosition(this.canvasInteraction);
         this.drawHex(this.canvasInteraction, this.hexToPixel(this.state.playerPosition), 1, "grey", "yellow", 0.2);
         this.drawHexes();
-        this.drawObstacles();
         this.addFogOfWar(this.canvasFog);
+        setInterval(() => this.getRandomPosition(), 100);
+    }
+
+    getRandomPosition() {
+        const neighbors = this.getNeighbors(this.state.enemyPosition);
+        const randomNeighbor = Math.floor(Math.random() * (6 - 0)) + 0;
+        if (!this.isHexIncluded(this.state.obstacles, neighbors[randomNeighbor])) {
+            this.setState({
+                enemyPosition: neighbors[randomNeighbor]
+            })
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
+        if (!this.areHexesEqual(this.state.enemyPosition, nextState.enemyPosition)) {
+            const ctx = this.canvasView.getContext("2d");
+            if (this.isHexVisible(nextState.enemyPosition, this.state.endPoints)) {
+                ctx.clearRect(0, 0, this.state.canvasSize.canvasWidth, this.state.canvasSize.canvasHeight)
+                this.drawHex(this.canvasView, this.hexToPixel(nextState.enemyPosition), 1, "black", "yellow");
+            }
+        }
         return false;
     }
 
@@ -511,27 +536,36 @@ export default class Canvas extends React.Component {
                 }
             }
         }
+        this.setState({
+            endPoints: endPoints
+        })
         this.clearFogOfWar(endPoints);
-        if (this.isHexVisible(this.Hex(0,0,0), endPoints)) {
-            this.drawHex(this.canvasInteraction, this.hexToPixel(this.Hex(0,0,0)), 1, "black", "red");
-        }
+        this.drawObstacles(endPoints);
     }
 
     isHexVisible(hex, endPoints) {
         const playerCenter = this.hexToPixel(this.state.playerPosition);
         const hexCenter = this.hexToPixel(hex);
-        const deltaX = hexCenter.x - playerCenter.x;
-        const deltaY = hexCenter.y - playerCenter.y;
-        let angle = Math.round(Math.atan2(deltaY, deltaX) * 180 / Math.PI);
-        if (angle < 0) angle = angle + 360;
-        const beam = endPoints.filter(v => v.a === angle)[0];
-        if (beam) {
-            for (let i = 0; i < 6; i++) {
-                const start = this.getHexCornerCoord(hexCenter, i);
-                const end =this.getHexCornerCoord(hexCenter, i + 1);
-                const intersect = this.lineIntersect(playerCenter.x, playerCenter.y, beam.x, beam.y, start.x, start.y, end.x, end.y);
-                if (intersect !== false) {
-                    return true
+        for (let i = 0; i < 6; i++) {
+            const start = this.getHexCornerCoord(hexCenter, i);
+            const end =this.getHexCornerCoord(hexCenter, i + 1);
+            const sideCenter = {
+                x: (start.x + end.x) / 2,
+                y: (start.y + end.y) /2,
+            }
+            const deltaX = sideCenter.x - playerCenter.x;
+            const deltaY = sideCenter.y - playerCenter.y;
+            let angle = Math.round(Math.atan2(deltaY, deltaX) * 180 / Math.PI);
+            if (angle < 0) angle = angle + 360;
+            const beam = endPoints.filter(v => v.a === angle)[0];
+            if (beam) {
+                for (let i = 0; i < 6; i++) {
+                    const start = this.getHexCornerCoord(hexCenter, i);
+                    const end =this.getHexCornerCoord(hexCenter, i + 1);
+                    const intersect = this.lineIntersect(playerCenter.x, playerCenter.y, beam.x, beam.y, start.x, start.y, end.x, end.y);
+                    if (intersect !== false) {
+                        return true
+                    }
                 }
             }
         }
@@ -710,10 +744,14 @@ export default class Canvas extends React.Component {
         return this.PointWithAngle(x, y, angle_deg);
     }
 
-    drawObstacles() {
-        this.state.obstacles.map((l) => {
-            this.drawHex(this.canvasHex, this.hexToPixel(l), 1, "black", "black");
-        })
+    drawObstacles(endPoints) {
+        for (let i = 0; i < this.state.obstacles.length; i++) {
+            if (this.isHexVisible(this.state.obstacles[i], endPoints)) {
+                this.drawHex(this.canvasHex, this.hexToPixel(this.state.obstacles[i]), 1, "black", "red");
+                this.drawHex(this.canvasFog, this.hexToPixel(this.state.obstacles[i]), 1, "black", "red");
+                this.drawHex(this.canvasFogHide, this.hexToPixel(this.state.obstacles[i]), 1, "black", "red");
+            }
+        }
     }
 
     breadthFirstSearch(playerPosition) {
@@ -752,11 +790,16 @@ export default class Canvas extends React.Component {
         return result.length === 0 ? false : true
     }
 
+    areHexesEqual(h1, h2) {
+        return h1.q === h2.q && h1.r === h2.r && h1.s === h2.s;
+    }
+
     render() {
         return (
             <React.Fragment>
                 <div className="background"></div>
                 <canvas ref={canvasHex => this.canvasHex = canvasHex }> </canvas>
+                <canvas ref={canvasView => this.canvasView = canvasView }> </canvas>
                 <canvas ref={canvasFog => this.canvasFog = canvasFog}></canvas>
                 <canvas ref={canvasFogHide => this.canvasFogHide = canvasFogHide}></canvas>
                 <canvas ref={canvasInteraction => this.canvasInteraction = canvasInteraction} onMouseMove = {this.handleMouseMove} onClick={this.handleClick}> </canvas>
