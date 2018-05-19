@@ -5740,6 +5740,10 @@ yargs@~1.2.6:
   dependencies:
     minimist "^0.1.0"
 
+yarn@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.6.0.tgz#9cec6f7986dc237d39ec705ce74d95155fe55d4b"
+
 yeoman-environment@^2.0.0, yeoman-environment@^2.0.5:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/yeoman-environment/-/yeoman-environment-2.0.6.tgz#ae1b21d826b363f3d637f88a7fc9ea7414cb5377"

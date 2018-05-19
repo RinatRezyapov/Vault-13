@@ -8,6 +8,8 @@ export default class Canvas extends React.Component {
         this.handleClick = this.handleClick.bind(this);
         this.state = {
             hexSize: 20,
+            hexSizeX: 18.477,
+            hexSizeY: 8, 
             hexOrigin: {
                 x: 400,
                 y: 300
@@ -177,14 +179,14 @@ export default class Canvas extends React.Component {
     getHexCornerCoord(center, i) {
         let angle_deg = 60 * i + 30;
         let angle_rad = Math.PI / 180 * angle_deg;
-        let x = center.x + this.state.hexSize * Math.cos(angle_rad);
-        let y = center.y + this.state.hexSize * Math.sin(angle_rad);
+        let x = center.x + this.state.hexSizeX * Math.cos(angle_rad);
+        let y = center.y + this.state.hexSizeY * Math.sin(angle_rad);
         return this.Point(x, y);
     }
 
     getHexParametres() {
-        let hexHeight = this.state.hexSize * 2;
-        let hexWidth = Math.sqrt(3) / 2 * hexHeight;
+        let hexHeight = this.state.hexSizeY * 2;
+        let hexWidth = 32;
         let vertDist = hexHeight * 3 / 4;
         let horizDist = hexWidth;
         return {
@@ -209,16 +211,16 @@ export default class Canvas extends React.Component {
 
     hexToPixel(h) {
         let hexOrigin = this.state.hexOrigin;
-        let x = this.state.hexSize * Math.sqrt(3) * (h.q + h.r / 2) + hexOrigin.x;
-        let y = this.state.hexSize * 3 / 2 * h.r + hexOrigin.y;
+        let x = this.state.hexSizeX * Math.sqrt(3) * (h.q + h.r / 2) + hexOrigin.x;
+        let y = this.state.hexSizeY * 3 / 2 * h.r + hexOrigin.y;
         return this.Point(x, y)
     }
 
     pixelToHex(p) {
         let size = this.state.hexSize;
         let origin = this.state.hexOrigin;
-        let q = ((p.x - origin.x) * Math.sqrt(3) / 3 - (p.y - origin.y) / 3) / size
-        let r = (p.y - origin.y) * 2 / 3 / size
+        let q = (((p.x - origin.x) * Math.sqrt(3) / 3) / this.state.hexSizeX  - ((p.y - origin.y) / 3) / this.state.hexSizeY)
+        let r = (p.y - origin.y) * 2 / 3 / this.state.hexSizeY
         return this.Hex(q, r, -q - r);
     }
 
