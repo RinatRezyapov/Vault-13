@@ -109,60 +109,38 @@ export default class Canvas extends React.Component {
         } = this.state.canvasSize;
         const {
             hexWidth,
-            hexHeight,
-            vertDist,
-            horizDist
-        } = this.state.hexParametres;
-        const hexOrigin = this.state.hexOrigin;
-        let qLeftSide = Math.round(hexOrigin.x / horizDist);
-        let qRightSide = Math.round((canvasWidth - hexOrigin.x) / horizDist);
-        let rTopSide = Math.round(hexOrigin.y / vertDist);
-        let rBottomSide = Math.round((canvasHeight - hexOrigin.y) / vertDist);
-        var hexPathMap = [];
-        var p = 0;
-        for (let r = 0; r <= rBottomSide; r++) {
-            if (r % 2 == 0 && r !== 0) {
-                p++;
-            }
-            for (let q = -qLeftSide; q <= qRightSide; q++) {
-                const {
-                    x,
-                    y
-                } = this.hexToPixel(this.Hex(q - p, r));
-                if ((x > hexWidth / 2 && x < canvasWidth - hexWidth / 2) && (y > hexHeight / 2 && y < canvasHeight - hexHeight / 2)) {
-                    this.drawHex(this.canvasHex, this.Point(x, y), 0.3, "#6bff02", "transparent");
-                    var bottomH = this.Hex(q - p, r, -(q - p) - r);
-                    if (!this.isHexIncluded(this.state.obstacles, bottomH)) {
-                        hexPathMap.push(this.Hex(q - p, r, -(q - p) - r));
-                    }
+            hexHeight
+        } = this.state.hexParametres
+        let hexPathMap = [];
+        let obstacles = [];
+        let frontier = [this.state.playerPosition];
+        let i = 0;
+        while (i < 15000) {
+            var current = frontier.shift();
+            let arr = this.getNeighbors(current);
+            for (let i = 0; i < arr.length; i++) {
+                const center = this.hexToPixel(arr[i]);
+                if (center.x - hexWidth/2 < 0 || center.x + hexWidth/2 > canvasWidth || center.y - hexHeight/2 < 0 || center.y + hexHeight/2 > canvasHeight) {
+                    obstacles.push(arr[i])
+                    continue
+                }
+                if (!this.isHexIncluded(hexPathMap, arr[i])) {
+                    this.drawHex(this.canvasHex, center, 0.3, "#6bff02", "transparent");
+                    hexPathMap.push(arr[i]);
+                }
+                if (!this.isHexIncluded(frontier, arr[i])) {
+                    frontier.push(arr[i]);
                 }
             }
+            i = i + 1;
         }
-
-        var n = 0;
-        for (let r = -1; r >= -rTopSide; r--) {
-            if (r % 2 !== 0) {
-                n++;
-            }
-            for (let q = -qLeftSide; q <= qRightSide; q++) {
-                const {
-                    x,
-                    y
-                } = this.hexToPixel(this.Hex(q + n, r));
-                if ((x > hexWidth / 2 && x < canvasWidth - hexWidth / 2) && (y > hexHeight / 2 && y < canvasHeight - hexHeight / 2)) {
-                    this.drawHex(this.canvasHex, this.Point(x, y), 0.3, "#6bff02", "transparent");
-                    var topH = this.Hex(q + n, r, -(q + n) - r);
-                    if (!this.isHexIncluded(this.state.obstacles, topH)) {
-                        hexPathMap.push(this.Hex(q + n, r, -(q + n) - r));
-                    }
-                }
-            }
-        }
-        hexPathMap = [].concat(hexPathMap);
         this.setState({
-                hexPathMap: hexPathMap
-            },
-            this.breadthFirstSearchCallback = () => this.breadthFirstSearch(this.state.playerPosition)
+            obstacles: [...obstacles]
+        })
+        this.setState({
+            hexPathMap: [...hexPathMap]
+        },
+        this.breadthFirstSearchCallback = () => this.breadthFirstSearch(this.state.playerPosition)
         )
     }
 
@@ -521,8 +499,7 @@ export default class Canvas extends React.Component {
         for (let i = 0; i < 360; i++) {
             let beam = this.getBeamsCoord(center, i, 800);
             for (let i = 0; i < hexSides.length; i++) {
-                let side = JSON.parse(hexSides[i]);
-
+                let side = hexSides[i];
                 let intersect = this.lineIntersect(center.x, center.y, beam.x, beam.y, side.start.x, side.start.y, side.end.x, side.end.y);
                 if (intersect) {
                     const distance = this.getDistance(center, intersect);
@@ -542,7 +519,7 @@ export default class Canvas extends React.Component {
             endPoints: endPoints
         })
         this.clearFogOfWar(endPoints);
-        this.drawObstacles(endPoints);
+        //this.drawObstacles(endPoints);
     }
 
     isHexVisible(hex, endPoints) {
@@ -559,7 +536,13 @@ export default class Canvas extends React.Component {
             const deltaY = sideCenter.y - playerCenter.y;
             let angle = Math.round(Math.atan2(deltaY, deltaX) * 180 / Math.PI);
             if (angle < 0) angle = angle + 360;
-            const beam = endPoints.filter(v => v.a === angle)[0];
+            let beams = [];
+            for (let i = 0, len = endPoints.length; i < len; i++) {
+                if (endPoints[i].a === angle) {
+                    beams.push(endPoints[i])
+                }
+            }
+            const beam = beams[0]
             if (beam) {
                 for (let i = 0; i < 6; i++) {
                     const start = this.getHexCornerCoord(hexCenter, i);
@@ -630,11 +613,11 @@ export default class Canvas extends React.Component {
         } = playerPosition;
         const playerPositionCenter = this.hexToPixel(this.Hex(q, r, s));
         let arr = [];
-        nearestObstacles.map((l) => {
-            let hexCenter = this.hexToPixel(l);
+        for (let i = 0, len = nearestObstacles.length; i < len; i++) {
+            let hexCenter = this.hexToPixel(nearestObstacles[i]);
             let fromPlayerToHex = Math.floor(this.getDistance(playerPositionCenter, hexCenter));
             for (let i = 0; i < 6; i++) {
-                let neighbor = this.getCubeNeighbor(l, i);
+                let neighbor = this.getCubeNeighbor(nearestObstacles[i], i);
                 if (!this.isHexIncluded(nearestObstacles, neighbor)) {
                     let start = this.getHexCornerCoord(hexCenter, i);
                     let end = this.getHexCornerCoord(hexCenter, i + 1);
@@ -643,11 +626,8 @@ export default class Canvas extends React.Component {
                         y: ((start.y + end.y) / 2)
                     };
                     let fromPlayerToSide = Math.floor(this.getDistance(playerPositionCenter, center));
-                    let side = JSON.stringify({
-                        start,
-                        end
-                    });
-                    if (fromPlayerToSide <= fromPlayerToHex && !arr.includes(side)) {
+                    let side = {start, end}
+                    if (fromPlayerToSide <= fromPlayerToHex) {
                         arr.push(side);
                     }
                     else {
@@ -656,7 +636,7 @@ export default class Canvas extends React.Component {
                 }
 
             }
-        })
+        }
         this.setState({
                 hexSides: arr
             },
@@ -746,15 +726,15 @@ export default class Canvas extends React.Component {
         return this.PointWithAngle(x, y, angle_deg);
     }
 
-    drawObstacles(endPoints) {
+    /*drawObstacles(endPoints) {
         for (let i = 0; i < this.state.obstacles.length; i++) {
             if (this.isHexVisible(this.state.obstacles[i], endPoints)) {
-                this.drawHex(this.canvasHex, this.hexToPixel(this.state.obstacles[i]), 1, "black", "red");
+                this.drawHex(this.canvasView, this.hexToPixel(this.state.obstacles[i]), 1, "black", "red");
                 this.drawHex(this.canvasFog, this.hexToPixel(this.state.obstacles[i]), 1, "black", "red");
                 this.drawHex(this.canvasFogHide, this.hexToPixel(this.state.obstacles[i]), 1, "black", "red");
             }
         }
-    }
+    }*/
 
     breadthFirstSearch(playerPosition) {
         let {
@@ -768,28 +748,41 @@ export default class Canvas extends React.Component {
         while (frontier.length != 0) {
             var current = frontier.shift();
             let arr = this.getNeighbors(current);
-            arr.map((l) => {
-                if (!cameFrom.hasOwnProperty(JSON.stringify(l)) && this.isHexIncluded(hexPathMap, l)) {
-                    frontier.push(l);
-                    cameFrom[JSON.stringify(l)] = JSON.stringify(current);
+            for (let i = 0, len = arr.length; i < len; i++) {
+                if (!cameFrom.hasOwnProperty(JSON.stringify(arr[i])) && this.isHexIncluded(hexPathMap, arr[i])) {
+                    frontier.push(arr[i]);
+                    cameFrom[JSON.stringify(arr[i])] = JSON.stringify(current);
                 }
-                if (this.isHexIncluded(obstacles, l)) {
-                    nearestObstacles.push(l)
+                if (this.isHexIncluded(obstacles, arr[i])) {
+                    nearestObstacles.push(arr[i])
                 }
-            })
+            }
         }
         cameFrom = Object.assign({}, cameFrom);
         this.setState({
                 cameFrom: cameFrom,
-                nearestObstacles: nearestObstacles
+                nearestObstacles: [...nearestObstacles]
             },
             this.getObstacleSidesCallback = () => this.getObstacleSides()
         )
     }
 
     isHexIncluded(arr, hex) {
-        const result = arr.filter(v => (v.q === hex.q && v.r === hex.r && v.s === hex.s))
-        return result.length === 0 ? false : true
+        for (let i = 0, len = arr.length; i < len; i++) {
+            if (arr[i].q === hex.q && arr[i].r === hex.r && arr[i].s === hex.s) return true
+        }
+    }
+
+    isHexSideIncluded(arr, hexSide) {
+        for (let i = 0, len = arr.length; i < len; i++) {
+            if (arr[i].start.x === hexSide.start.x 
+                && arr[i].start.y === hexSide.start.y 
+                && arr[i].end.x === hexSide.end.x 
+                && arr[i].end.y === hexSide.end.y) {
+                    return true
+                }
+        }
+        return false
     }
 
     areHexesEqual(h1, h2) {
@@ -799,7 +792,6 @@ export default class Canvas extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <div className="background"></div>
                 <canvas ref={canvasHex => this.canvasHex = canvasHex }> </canvas>
                 <canvas ref={canvasView => this.canvasView = canvasView }> </canvas>
                 <canvas ref={canvasFog => this.canvasFog = canvasFog}></canvas>

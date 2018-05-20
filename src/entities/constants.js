@@ -1,4 +1,5 @@
-export const dummyObstacles = [
+export const dummyObstacles = []
+export const dummyObstacless = [
   {
     q: 4,
     r: -2,
