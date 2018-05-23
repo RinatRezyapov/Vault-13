@@ -67,6 +67,7 @@ export default class Canvas extends React.Component {
         this.canvasFog.height = canvasHeight;
         this.canvasFogHide.width = canvasWidth;
         this.canvasFogHide.height = canvasHeight;
+        this.canvasHexOffscreen = new OffscreenCanvas(2000, 600);
         this.getCanvasPosition(this.canvasInteraction);
         this.drawHex(this.canvasInteraction, this.hexToPixel(this.state.playerPosition), 1, "grey", "yellow", 0.2);
         this.drawHexes();
@@ -105,40 +106,67 @@ export default class Canvas extends React.Component {
     drawHexes() {
         const {
             canvasWidth,
-            canvasHeight
+            canvasHeight,
         } = this.state.canvasSize;
         const {
             hexWidth,
-            hexHeight
-        } = this.state.hexParametres
-        let hexPathMap = [];
+            hexHeight,
+            vertDist,
+            horizDist
+        } = this.state.hexParametres;
+        const hexOrigin = this.state.hexOrigin;
+        let qLeftSide = Math.round(hexOrigin.x / horizDist);
+        let qRightSide = Math.round((canvasWidth - hexOrigin.x) / horizDist);
+        let rTopSide = Math.round(hexOrigin.y / vertDist);
+        let rBottomSide = Math.round((canvasHeight - hexOrigin.y) / vertDist);
+        var hexPathMap = [];
         let obstacles = [];
-        let frontier = [this.state.playerPosition];
-        let i = 0;
-        while (i < 15000) {
-            var current = frontier.shift();
-            let arr = this.getNeighbors(current);
-            for (let i = 0; i < arr.length; i++) {
-                const center = this.hexToPixel(arr[i]);
-                if (center.x - hexWidth/2 < 0 || center.x + hexWidth/2 > canvasWidth || center.y - hexHeight/2 < 0 || center.y + hexHeight/2 > canvasHeight) {
-                    obstacles.push(arr[i])
-                    continue
-                }
-                if (!this.isHexIncluded(hexPathMap, arr[i])) {
-                    this.drawHex(this.canvasHex, center, 0.3, "#6bff02", "transparent");
-                    hexPathMap.push(arr[i]);
-                }
-                if (!this.isHexIncluded(frontier, arr[i])) {
-                    frontier.push(arr[i]);
+        var p = 0;
+        for (let r = 0; r <= rBottomSide; r++) {
+            if (r % 2 == 0 && r !== 0) {
+                p++;
+            }
+            for (let q = -qLeftSide; q <= qRightSide; q++) {
+                const {
+                    x,
+                    y
+                } = this.hexToPixel(this.Hex(q - p, r));
+                if ((x > hexWidth / 2 && x < canvasWidth - hexWidth / 2) && (y > hexHeight / 2 && y < canvasHeight - hexHeight / 2)) {
+                    this.drawHex(this.canvasHexOffscreen, this.Point(x, y), 0.3, "#6bff02", "transparent");
+                    var bottomH = this.Hex(q - p, r, -(q - p) - r);
+                    if (!this.isHexIncluded(this.state.obstacles, bottomH)) {
+                        hexPathMap.push(this.Hex(q - p, r, -(q - p) - r));
+                    } else {
+                        
+                    }
                 }
             }
-            i = i + 1;
         }
+
+        var n = 0;
+        for (let r = -1; r >= -rTopSide; r--) {
+            if (r % 2 !== 0) {
+                n++;
+            }
+            for (let q = -qLeftSide; q <= qRightSide; q++) {
+                const {
+                    x,
+                    y
+                } = this.hexToPixel(this.Hex(q + n, r));
+                if ((x > hexWidth / 2 && x < canvasWidth - hexWidth / 2) && (y > hexHeight / 2 && y < canvasHeight - hexHeight / 2)) {
+                    this.drawHex(this.canvasHexOffscreen, this.Point(x, y), 0.3, "#6bff02", "transparent");
+                    var topH = this.Hex(q + n, r, -(q + n) - r);
+                    if (!this.isHexIncluded(this.state.obstacles, topH)) {
+                        hexPathMap.push(this.Hex(q + n, r, -(q + n) - r));
+                    }
+                }
+            }
+        }
+        const ctx = this.canvasHex.getContext('2d');
+        ctx.drawImage(this.canvasHexOffscreen, 0, 0, 800, 600, 0, 0, 800, 600);
         this.setState({
-            obstacles: [...obstacles]
-        })
-        this.setState({
-            hexPathMap: [...hexPathMap]
+            hexPathMap: [...hexPathMap],
+            //obstacles: [...obstacles]
         },
         this.breadthFirstSearchCallback = () => this.breadthFirstSearch(this.state.playerPosition)
         )
@@ -561,13 +589,11 @@ export default class Canvas extends React.Component {
         const { playerPosition } = this.state;
         const center = this.hexToPixel(playerPosition);
         const ctxCanvasFog = this.canvasFog.getContext("2d");
-        ctxCanvasFog.beginPath();
         const rGCanvasFog = ctxCanvasFog.createRadialGradient(center.x, center.y, this.state.playerSight - 100, center.x, center.y, this.state.playerSight);
         rGCanvasFog.addColorStop(0, "rgba(0, 0, 0, 1)");
         rGCanvasFog.addColorStop(0.9, "rgba(0, 0, 0, 0.1)");
         rGCanvasFog.addColorStop(1, "rgba(0, 0, 0, 0)");
         ctxCanvasFog.fillStyle = rGCanvasFog;
-        ctxCanvasFog.moveTo(endPoints[0].x, endPoints[0].y);
 
         const ctxCanvasFogHide = this.canvasFogHide.getContext("2d");
         ctxCanvasFogHide.globalCompositeOperation = "source-out";
@@ -575,30 +601,45 @@ export default class Canvas extends React.Component {
         ctxCanvasFogHide.fillStyle = "rgba(0, 0, 0, 0.7)";
         ctxCanvasFogHide.fillRect(0, 0, this.state.canvasSize.canvasWidth, this.state.canvasSize.canvasHeight);
 
-        ctxCanvasFogHide.beginPath();
         const rGCanvasFogHide = ctxCanvasFogHide.createRadialGradient(center.x, center.y, this.state.playerSight - 100, center.x, center.y, this.state.playerSight);
         rGCanvasFogHide.addColorStop(0, "rgba(0, 0, 0, 1)");
         rGCanvasFogHide.addColorStop(0.9, "rgba(0, 0, 0, 0.1)");
         rGCanvasFogHide.addColorStop(1, "rgba(0, 0, 0, 0)");
         ctxCanvasFogHide.globalCompositeOperation = "destination-out";
         ctxCanvasFogHide.fillStyle = rGCanvasFogHide;
-        ctxCanvasFogHide.moveTo(endPoints[0].x, endPoints[0].y);
 
-        for (let i = 0; i < endPoints.length; i++) {
-            if (i + 1 === 360) {
-                ctxCanvasFog.lineTo(endPoints[i].x, endPoints[i].y)
-                ctxCanvasFogHide.lineTo(endPoints[i].x, endPoints[i].y)
-            } else {
-                ctxCanvasFog.lineTo(endPoints[i].x, endPoints[i].y)
-                ctxCanvasFogHide.lineTo(endPoints[i].x, endPoints[i].y)
+        if (endPoints.length > 0) {
+            ctxCanvasFog.beginPath();
+            ctxCanvasFog.moveTo(endPoints[0].x, endPoints[0].y);
+            ctxCanvasFogHide.beginPath();
+            ctxCanvasFogHide.moveTo(endPoints[0].x, endPoints[0].y);
+    
+            for (let i = 0; i < endPoints.length; i++) {
+                if (i + 1 === 360) {
+                    ctxCanvasFog.lineTo(endPoints[i].x, endPoints[i].y)
+                    ctxCanvasFogHide.lineTo(endPoints[i].x, endPoints[i].y)
+                } else {
+                    ctxCanvasFog.lineTo(endPoints[i].x, endPoints[i].y)
+                    ctxCanvasFogHide.lineTo(endPoints[i].x, endPoints[i].y)
+                }
             }
+    
+            ctxCanvasFogHide.closePath();
+            ctxCanvasFogHide.fill();
+    
+            ctxCanvasFog.closePath();
+            ctxCanvasFog.fill();
+        } else {
+            ctxCanvasFog.beginPath();
+            ctxCanvasFog.arc(center.x, center.y, this.state.playerSight, 0, 2 * Math.PI)
+            ctxCanvasFog.closePath();
+            ctxCanvasFog.fill();
+
+            ctxCanvasFogHide.beginPath();
+            ctxCanvasFogHide.arc(center.x, center.y, this.state.playerSight, 0, 2 * Math.PI)
+            ctxCanvasFogHide.closePath();
+            ctxCanvasFogHide.fill();
         }
-
-        ctxCanvasFogHide.closePath();
-        ctxCanvasFogHide.fill();
-
-        ctxCanvasFog.closePath();
-        ctxCanvasFog.fill();
     }
  
     getObstacleSides() {
