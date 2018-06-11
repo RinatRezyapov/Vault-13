@@ -35,7 +35,7 @@ export default class Canvas extends React.Component {
             },
             obstacles: dummyObstacles,
             cameFrom: {},
-            hexPathMap: [],
+            hexPathMap: {},
             path: [],
             hexSides: [],
             nearestObstacles: [],
@@ -79,12 +79,25 @@ export default class Canvas extends React.Component {
         this.canvasFogHide.width = canvasWidth;
         this.canvasFogHide.height = canvasHeight;
         this.canvasHexOffscreen = new OffscreenCanvas(offscreenCanvasWidth, offscreenCanvasHeight);
+        this.canvasInteractionOffscreen = new OffscreenCanvas(offscreenCanvasWidth, offscreenCanvasHeight);
         this.getCanvasPosition(this.canvasInteraction);
-        this.drawHex(this.canvasInteraction, this.hexToPixel(this.state.playerPosition), 1, "grey", "yellow", 0.2);
         this.drawHexes();
+        this.drawInitPlayerPosition();
         //this.addFogOfWar(this.canvasFog);
         setInterval(() => this.getRandomPosition(), 100);
         setInterval(() => this.scrollByPointer(), 1);
+    }
+
+    drawInitPlayerPosition() {
+        const {
+            canvasWidth,
+            canvasHeight,
+            offscreenCanvasWidth,
+            offscreenCanvasHeight
+        } = this.state.canvasSize;
+        this.drawHex(this.canvasInteractionOffscreen, this.hexToPixel(this.state.playerPosition), 1, "grey", "yellow", 0.2);
+        const ctxCanvasInteraction = this.canvasInteraction.getContext("2d");
+        ctxCanvasInteraction.drawImage(this.canvasInteractionOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
     }
 
     getRandomPosition() {
@@ -133,7 +146,7 @@ export default class Canvas extends React.Component {
         let qRightSide = Math.round((offscreenCanvasWidth - hexOrigin.x) / horizDist);
         let rTopSide = Math.round(hexOrigin.y / vertDist);
         let rBottomSide = Math.round((offscreenCanvasHeight - hexOrigin.y) / vertDist);
-        var hexPathMap = [];
+        var hexPathMap = {};
         let obstacles = [];
         var p = 0;
         for (let r = 0; r <= rBottomSide; r++) {
@@ -149,7 +162,7 @@ export default class Canvas extends React.Component {
                     this.drawHex(this.canvasHexOffscreen, this.Point(x, y), 0.3, "#6bff02", "transparent");
                     var bottomH = this.Hex(q - p, r, -(q - p) - r);
                     if (!this.isHexIncluded(this.state.obstacles, bottomH)) {
-                        hexPathMap.push(this.Hex(q - p, r, -(q - p) - r));
+                        hexPathMap[JSON.stringify(this.Hex(q - p, r, -(q - p) - r))] = this.Hex(q - p, r, -(q - p) - r);
                     } else {
                         
                     }
@@ -171,7 +184,7 @@ export default class Canvas extends React.Component {
                     this.drawHex(this.canvasHexOffscreen, this.Point(x, y), 0.3, "#6bff02", "transparent");
                     var topH = this.Hex(q + n, r, -(q + n) - r);
                     if (!this.isHexIncluded(this.state.obstacles, topH)) {
-                        hexPathMap.push(this.Hex(q + n, r, -(q + n) - r));
+                        hexPathMap[JSON.stringify(this.Hex(q + n, r, -(q + n) - r))] = this.Hex(q + n, r, -(q + n) - r);
                     }
                 }
             }
@@ -179,7 +192,7 @@ export default class Canvas extends React.Component {
         const ctx = this.canvasHex.getContext('2d');
         ctx.drawImage(this.canvasHexOffscreen, 0, 0, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
         this.setState({
-            hexPathMap: [...hexPathMap],
+            hexPathMap: {...hexPathMap},
             //obstacles: [...obstacles]
         },
         this.breadthFirstSearchCallback = () => this.breadthFirstSearch(this.state.playerPosition)
@@ -431,7 +444,7 @@ export default class Canvas extends React.Component {
             q,
             r,
             s
-        } = this.cubeRound(this.pixelToHex(this.Point(offsetX, offsetY)));
+        } = this.cubeRound(this.pixelToHex(this.Point(offsetX + this.state.canvasX, offsetY + this.state.canvasY)));
         const {
             x,
             y
@@ -458,7 +471,9 @@ export default class Canvas extends React.Component {
             offscreenCanvasWidth,
             offscreenCanvasHeight
         } = this.state.canvasSize;
-        const ctx = this.canvasHex.getContext('2d');
+        const ctxCanvasHex = this.canvasHex.getContext('2d');
+        const ctxCanvasInteraction = this.canvasInteraction.getContext("2d");
+
         if (this.state.mouseOut) return
         if (this.state.mouseX > canvasWidth - 50 && this.state.canvasX < offscreenCanvasWidth - canvasWidth) {
             this.setState({
@@ -466,8 +481,10 @@ export default class Canvas extends React.Component {
                 canvasX: this.state.canvasX + 1
             },
             () => {
-                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                ctx.drawImage(this.canvasHexOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+                ctxCanvasHex.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctxCanvasHex.drawImage(this.canvasHexOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+                ctxCanvasInteraction.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctxCanvasInteraction.drawImage(this.canvasInteractionOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
             })
         }
         if (this.state.mouseX < 50 && this.state.canvasX > 0) {
@@ -476,8 +493,10 @@ export default class Canvas extends React.Component {
                 canvasX: this.state.canvasX - 1
             },
             () => {
-                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                ctx.drawImage(this.canvasHexOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+                ctxCanvasHex.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctxCanvasHex.drawImage(this.canvasHexOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+                ctxCanvasInteraction.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctxCanvasInteraction.drawImage(this.canvasInteractionOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
             })
         }
         if (this.state.mouseY > canvasHeight - 50 && this.state.canvasY < offscreenCanvasHeight - canvasHeight) {
@@ -486,8 +505,10 @@ export default class Canvas extends React.Component {
                 canvasY: this.state.canvasY + 1
             },
             () => {
-                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                ctx.drawImage(this.canvasHexOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+                ctxCanvasHex.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctxCanvasHex.drawImage(this.canvasHexOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+                ctxCanvasInteraction.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctxCanvasInteraction.drawImage(this.canvasInteractionOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
             })
         }
         if (this.state.mouseY < 50 && this.state.canvasY > 0) {
@@ -496,8 +517,10 @@ export default class Canvas extends React.Component {
                 canvasY: this.state.canvasY - 1
             },
             () => {
-                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                ctx.drawImage(this.canvasHexOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+                ctxCanvasHex.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctxCanvasHex.drawImage(this.canvasHexOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
+                ctxCanvasInteraction.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctxCanvasInteraction.drawImage(this.canvasInteractionOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
             })
         }
     }
@@ -575,7 +598,9 @@ export default class Canvas extends React.Component {
         else {
             const {
                 canvasWidth,
-                canvasHeight
+                canvasHeight,
+                offscreenCanvasWidth,
+                offscreenCanvasHeight
             } = this.state.canvasSize;
             const ctx = this.canvasInteraction.getContext("2d");
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -589,7 +614,10 @@ export default class Canvas extends React.Component {
                 x,
                 y
             } = this.hexToPixel(this.Hex(q, r, s));
-            this.drawHex(this.canvasInteraction, this.Point(x, y), 1, "black", "yellow", 0.1);
+            const ctxCanvasInteractionOffscreen = this.canvasInteractionOffscreen.getContext("2d");
+            ctxCanvasInteractionOffscreen.clearRect(0, 0, offscreenCanvasWidth, offscreenCanvasHeight);
+            this.drawHex(this.canvasInteractionOffscreen, this.Point(x, y), 1, "black", "yellow", 0.1);
+            ctx.drawImage(this.canvasInteractionOffscreen, this.state.canvasX, this.state.canvasY, canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight);
             this.setState({
                     playerPosition: this.Hex(q, r, s)
                 },
@@ -871,7 +899,7 @@ export default class Canvas extends React.Component {
             var current = frontier.shift();
             let arr = this.getNeighbors(current);
             for (let i = 0, len = arr.length; i < len; i++) {
-                if (!cameFrom.hasOwnProperty(JSON.stringify(arr[i])) && this.isHexIncluded(hexPathMap, arr[i])) {
+                if (!cameFrom.hasOwnProperty(JSON.stringify(arr[i])) && hexPathMap.hasOwnProperty(JSON.stringify(arr[i]))) {
                     frontier.push(arr[i]);
                     cameFrom[JSON.stringify(arr[i])] = JSON.stringify(current);
                 }
