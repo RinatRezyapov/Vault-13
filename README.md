@@ -1,6 +1,6 @@
 Inspired by article http://www.redblobgames.com/grids/hexagons/
 
-Canvas game in functional programming style.
+Canvas (Fallout 2 like) game in functional programming style.
 
 Implemented: 
 
