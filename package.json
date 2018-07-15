@@ -10,8 +10,12 @@
   "license": "MIT",
   "homepage": "https://github.com/RinatRezyapov/Vault-13",
   "dependencies": {
+    "@types/react": "^16.4.1",
+    "@types/react-dom": "^16.0.6",
     "react": "^16.3.2",
     "react-dom": "^16.3.2",
+    "ts-loader": "^4.4.1",
+    "typescript": "^2.9.2",
     "webpack-cli": "^2.0.15"
   },
   "devDependencies": {

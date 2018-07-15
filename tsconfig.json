@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "dist",
+        "noImplicitAny": true,
+        "module": "es6",
+        "moduleResolution": "node",
+        "target": "es5",
+        "sourceMap": false,
+        "noFallthroughCasesInSwitch": true,
+        "strictNullChecks": true,
+        "jsx": "react",
+        "lib": ["es2017", "dom"]
+    },
+    "files": [
+        "./src/main.tsx"
+    ],
+    "exclude": [
+        "node_modules/**"
+    ],
+  }
