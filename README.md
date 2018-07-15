@@ -2,6 +2,8 @@ Inspired by article http://www.redblobgames.com/grids/hexagons/
 
 Canvas (Fallout 2 like) game in functional programming style.
 
+Demo: https://codepen.io/RinatRezyapov/pen/LBGzdE
+
 Implemented: 
 
 * -Hexagonal grid
