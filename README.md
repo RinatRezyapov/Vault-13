@@ -12,6 +12,7 @@ Implemented:
 * Obstacles
 * Field of view (has some bugs to fix)
 * Scrollable with mouse pointer map (currently 2000x2000)
+* Typescriped
 
 
 Left mouse button - moving
