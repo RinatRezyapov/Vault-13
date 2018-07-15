@@ -6,11 +6,13 @@ Demo: https://codepen.io/RinatRezyapov/pen/LBGzdE
 
 Implemented: 
 
-* -Hexagonal grid
-* -Breadth-first search
-* -Getting path and moving
-* -Obstacles
-* -Field of view (has some bugs to fix)
+* Hexagonal grid
+* Breadth-first search
+* Getting path and moving
+* Obstacles
+* Field of view (has some bugs to fix)
+* Scrollable with mouse pointer map (currently 2000x2000)
+
 
 Left mouse button - moving
 
