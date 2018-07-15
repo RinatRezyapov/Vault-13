@@ -1,13 +1,13 @@
 Inspired by article http://www.redblobgames.com/grids/hexagons/
 
-Demo: https://codepen.io/RinatRezyapov/pen/bZLZEm
+Canvas game in functional programming style.
+Implemented: 
+-Hexagonal grid
+-Breadth-first search
+-Getting path and moving
+-Obstacles
+-Field of view (has some bugs to fix)
 
-I always wanted to create a game using javascript from scratch without using any framewroks or libraries.
-
-This is my first attempt. I decided to make video of this process and upload it to youtube, so check this out: https://www.youtube.com/playlist?list=PLshG9vHWHGOgPIs2oarf1ZBTho5Jbg9JF
-
-I'm not trying to use best practices while writing the code I just want to do it as simple as possible.
-
-If you have an interesting project, especially game project feel free to contact me: rinat.rezyapov@gmail.com
-
-Thank you for attention!
+Left mouse button - moving
+Middle mouse button - remove obstacle
+Right mouse button - add obstacle
