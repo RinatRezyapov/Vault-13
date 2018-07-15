@@ -2,7 +2,7 @@
   "name": "Vault-13",
   "version": "0.0.1",
   "description": "JavaScript Game",
-  "main": "''",
+  "main": "./src/main.tsx",
   "scripts": {
     "start": "webpack-dev-server --mode development --open"
   },
