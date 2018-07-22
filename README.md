@@ -1,16 +1,14 @@
-Inspired by article http://www.redblobgames.com/grids/hexagons/
-
-Canvas (Fallout 2 like) game in functional programming style.
+Canvas (Fallout 2 like) game? in functional programming style.
 
 Demo: https://codepen.io/RinatRezyapov/full/LBGzdE
 
 Implemented: 
 
-* Hexagonal grid 
+* Hexagonal grid (https://www.redblobgames.com/grids/hexagons/)
 * Breadth-first search
 * Getting path and moving
 * Obstacles
-* Field of view
+* Field of view (https://ncase.me/sight-and-light/)
 * Scrollable with mouse pointer map (currently 2000x2000)
 * Typescriped
 
