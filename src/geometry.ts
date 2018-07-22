@@ -1,191 +1,128 @@
-import { Point, PointWithAngle, Hex, MapObject } from "./domain/entities";
+import { Point, PointWithAngle, MapObject, Segment } from "./domain/entities";
 import { hexToPixel, stringToHex, hexToString } from "./converters";
-import { getCubeNeighbor, getHexCornerCoord, getHexCornerCoordWithAngle } from "./hex";
-import { State } from "./main";
-import { drawLine, drawPoint } from "./drawing";
-import { config } from "./config";
+import { getHexCornerCoord } from "./hex";
+
 
 export const getDistance = (a: Point, b: Point): number => {
     return Math.hypot(b.x - a.x, b.y - a.y);
 }
 
-const between = (a: number, b: number, c: number): boolean => {
-    let eps = 0.0000001;
-    return a - eps <= b && b <= c + eps;
+const getIntersection = (ray: Segment, segment: Segment): PointWithAngle | null => {
+
+	const r_px = ray.a.x;
+	const r_py = ray.a.y;
+	const r_dx = ray.b.x-ray.a.x;
+	const r_dy = ray.b.y-ray.a.y;
+
+	const s_px = segment.a.x;
+	const s_py = segment.a.y;
+	const s_dx = segment.b.x-segment.a.x;
+	const s_dy = segment.b.y-segment.a.y;
+
+	const r_mag = Math.sqrt(r_dx * r_dx + r_dy * r_dy);
+	const s_mag = Math.sqrt(s_dx * s_dx + s_dy * s_dy);
+	if(r_dx / r_mag == s_dx / s_mag && r_dy / r_mag == s_dy / s_mag){
+		return null;
+	}
+
+	const T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx * r_dy - s_dy * r_dx);
+	const T1 = (s_px + s_dx * T2 - r_px) / r_dx;
+
+	if (T1 < 0) return null;
+	if (T2 < 0 || T2 > 1) return null;
+
+	return new PointWithAngle(r_px + r_dx  *T1, r_py + r_dy * T1, 0, T1)
 }
 
-export const lineIntersect = (
-    x1: number, 
-    y1: number, 
-    x2: number, 
-    y2: number, 
-    x3: number, 
-    y3: number, 
-    x4: number, 
-    y4: number): Point | undefined => 
-    {
-    var x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) /
-        ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
-    var y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) /
-        ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
-    if (isNaN(x) || isNaN(y)) {
-        return undefined;
-    }
-    else {
-        if (x1 >= x2) {
-            if (!between(x2, x, x1)) {
-                return undefined;
-            }
-        }
-        else {
-            if (!between(x1, x, x2)) {
-                return undefined;
-            }
-        }
-        if (y1 >= y2) {
-            if (!between(y2, y, y1)) {
-                return undefined;
-            }
-        }
-        else {
-            if (!between(y1, y, y2)) {
-                return undefined;
-            }
-        }
-        if (x3 >= x4) {
-            if (!between(x4, x, x3)) {
-                return undefined;
-            }
-        }
-        else {
-            if (!between(x3, x, x4)) {
-                return undefined;
-            }
-        }
-        if (y3 >= y4) {
-            if (!between(y4, y, y3)) {
-                return undefined;
-            }
-        }
-        else {
-            if (!between(y3, y, y4)) {
-                return undefined;
-            }
-        }
-    }
-    return new Point(x, y);
-}
-
-export const getObstacleBeams = (center: Point, i: number, range: number): Point => {
-    let angle_deg = 30 * i;
-    let angle_rad = Math.PI / 180 * angle_deg;
-    let x = center.x + range * Math.cos(angle_rad);
-    let y = center.y + range * Math.sin(angle_rad);
-    return new Point(x, y);
-}
-
-export const getHexBeamsCoord = (center: Point, i: number, range: number): Point => {
-    let angle_deg = 4 * i + 30;
-    let angle_rad = Math.PI / 180 * angle_deg;
-    let x = center.x + range * Math.cos(angle_rad);
-    let y = center.y + range * Math.sin(angle_rad);
-    return new Point(x, y);
-}
-
-export const getBeamsCoord = (center: Point, i: number, range: number): PointWithAngle => {
-    let angle_deg = 1 * i;
-    let angle_rad = Math.PI / 180 * angle_deg;
-    let x = center.x + range * Math.cos(angle_rad);
-    let y = center.y + range * Math.sin(angle_rad);
-    return new PointWithAngle(x, y, angle_deg);
-}
-
-export const getBeam = (center: Point, i: number): PointWithAngle => {
-    const horizontalDistance = config.hexWidth * 7 + config.hexWidth/2;
-    const verticalDistance = config.hexVertDist * 6;
-    const angle_deg = 60 * i;
-    const angle_rad = Math.PI / 180 * angle_deg;
-    const x = center.x + horizontalDistance * Math.cos(angle_rad);
-    const y = center.y + verticalDistance * Math.sin(angle_rad);
-
-    return new PointWithAngle(x, y, angle_deg);
-}
-
-export const updateNearestObstacles = (state: State, player: MapObject, object: MapObject): {[key: string]: boolean} => {
+export const getObstacles = (nearestObstacles: {[key: string]: boolean}, object: MapObject): {[key: string]: boolean} => {
     if (object.type === "wall") {
-            if (getDistance(hexToPixel(player.position), hexToPixel(object.position)) < 200) {
-
-                //***draw*** line from player to obstacle
-                /*if (state.canvases.canvasInteractionOffscreen) {
-                    drawLine(state.canvases.canvasInteractionOffscreen, hexToPixel(player.position), hexToPixel(object.position), 1, "yellow");
-                }*/
-                if (!state.nearestObstacles.hasOwnProperty(hexToString(object.position))) {
-                    return {...state.nearestObstacles, [hexToString(object.position)]: true};
-                    
-                }
-            } else {
-                const {[hexToString(object.position)]: any, ...rest} = state.nearestObstacles;
-                return rest;
-            }
+        if (!nearestObstacles.hasOwnProperty(hexToString(object.position))) {
+            return {...nearestObstacles, [hexToString(object.position)]: true};
+            
+        }
     }
-    return state.nearestObstacles;
+    return nearestObstacles;
 }
 
-export const getObstacleSides = (state: State, player: MapObject): Array<{}> => {
-    const playerPositionCenter = hexToPixel(player.position);
-    let obstacleSides: Array<{}> = [];
-    const nearestObstacles = Object.keys(state.nearestObstacles);
+export const getObstaclesSegments = (nearestObstaclesArg: {[key: string]: boolean}): Array<Segment> => {
+    let obstacleSides: Array<Segment> = [];
+    const nearestObstacles = Object.keys(nearestObstaclesArg);
 
     for (let i = 0, len = nearestObstacles.length; i < len; i++) {
-        let hexCenter = hexToPixel(stringToHex(nearestObstacles[i]));
-        let fromPlayerToHex = Math.floor(getDistance(playerPositionCenter, hexCenter));
+        const hexCenter = hexToPixel(stringToHex(nearestObstacles[i]));
 
         for (let j = 0; j < 6; j++) {
-            let neighbor = hexToString(getCubeNeighbor(stringToHex(nearestObstacles[i]), j));
-            if (!nearestObstacles.includes(neighbor)) {
-                let start = getHexCornerCoord(hexCenter, j);
-                let end = getHexCornerCoord(hexCenter, j + 1);
-                let center = {
-                    x: ((start.x + end.x) / 2),
-                    y: ((start.y + end.y) / 2)
-                };
-
-                let fromPlayerToSide = Math.floor(getDistance(playerPositionCenter, center));
-
-                let side = {start, end}
-                if (fromPlayerToSide <= fromPlayerToHex) {
-                        //***draw*** Sides
-                        /*if (state.canvases.canvasInteractionOffscreen) {
-                            drawLine(state.canvases.canvasInteractionOffscreen, side.start, side.end, 1, "yellow");
-                        }*/
-                        obstacleSides.push(side);
-                }
-                else {
-                    continue;
-                }
-            }
-
+            const a = getHexCornerCoord(hexCenter, j);
+            const b = getHexCornerCoord(hexCenter, j + 1);
+            const side = new Segment(a, b);
+            obstacleSides.push(side);
         }
     }
-    return obstacleSides;
+
+   return obstacleSides.concat([
+        new Segment(new PointWithAngle(0, 0, 0, 0), new PointWithAngle(2000, 0, 0, 0)),
+        new Segment(new PointWithAngle(2000, 0, 0, 0), new PointWithAngle(2000, 2000, 0, 0)),
+        new Segment(new PointWithAngle(2000, 2000, 0, 0), new PointWithAngle(0, 2000, 0, 0)),
+        new Segment(new PointWithAngle(0, 2000, 0, 0), new PointWithAngle(0, 0, 0, 0))
+    ]);
 }
 
-export const visibleField = (state: State, object: MapObject) => {
-    let endPoints: {[key: string]: PointWithAngle} = {};
-    let center = hexToPixel(object.position);
-    if (state.canvases.canvasInteractionOffscreen) {
-            for (let i = 0; i < 360; i++) {
-                let beam = getBeamsCoord(center, i, 200);
-                endPoints[beam.a] = beam
-                for (let i = 0; i < state.obstacleSides.length; i++) {
-                    let side = state.obstacleSides[i] as {start: Point, end: Point};
-                    let intersect = lineIntersect(center.x, center.y, beam.x, beam.y, side.start.x, side.start.y, side.end.x, side.end.y);
-                    if (intersect) {
-                            const point = new PointWithAngle(intersect.x, intersect.y, beam.a)
-                            endPoints[beam.a] = point
-                    }
-                }
+export const visibleField = (obstacleSides: Array<Segment>, object: MapObject) => {
+
+    const objectCoords = hexToPixel(object.position);
+
+    const points = (segments => {
+        const a: Array<PointWithAngle> = [];
+        segments.forEach(seg => a.push(seg.a, seg.b));
+        return a;
+    })(obstacleSides);
+
+    const uniquePoints = (points => {
+        let set: {[key: string]: boolean} = {};
+        return points.filter(p => {
+            const key = `${p.x},${p.y}`;
+            if (key in set) {
+                return false;
+            } else {
+                set[key] = true;
+                return true;
+            }
+        });
+    })(points);
+
+    let uniqueAngles = [];
+    for (let j=0; j<uniquePoints.length; j++) {
+        let uniquePoint = uniquePoints[j];
+        const angle = Math.atan2(uniquePoint.y - objectCoords.y, uniquePoint.x - objectCoords.x);
+        uniquePoint.a = angle;
+        uniqueAngles.push(angle - 0.00001, angle, angle + 0.00001);
+    }
+
+    let endPoints: Array<PointWithAngle> = [];
+    for (let j=0; j < uniqueAngles.length; j++) {
+
+        const angle = uniqueAngles[j];
+
+        const dx = Math.cos(angle);
+        const dy = Math.sin(angle);
+        
+        const ray = {
+			a: new PointWithAngle(objectCoords.x, objectCoords.y, 0, 0),
+			b: new PointWithAngle(objectCoords.x + dx, objectCoords.y + dy, 0, 0)
+        };
+        
+        let closestIntersect = null;
+		for(var i = 0; i < obstacleSides.length; i++){
+            
+			const intersect = getIntersection(ray, obstacleSides[i]);
+			if (!intersect) continue;
+			if (!closestIntersect || intersect.param< closestIntersect.param) {
+				closestIntersect = new PointWithAngle(intersect.x, intersect.y, 0, intersect.param);
+			}
         }
+        if (!closestIntersect) continue
+            closestIntersect.a = angle;
+            endPoints.push(closestIntersect)
     }
     return endPoints
 }

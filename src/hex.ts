@@ -1,10 +1,9 @@
-import { Point, Hex, MapObject, PointWithAngle } from "./domain/entities";
+import { Point, Hex, PointWithAngle } from "./domain/entities";
 import { hexToString, hexToPixel, axialToCube, cubeToOddr } from "./converters";
 import { State } from "./main";
 import { mergeToState } from "./stateHandlers";
-import { drawHex, drawLine } from "./drawing";
+import { drawHex } from "./drawing";
 import { config } from "./config";
-import { getDistance } from "./geometry";
 
 export const getHexPathMap = (state: State): State => {
 
@@ -47,16 +46,7 @@ export const getHexCornerCoord = (center: Point, i: number) => {
     const x = center.x + config.hexSizeX * Math.cos(angle_rad);
     const y = center.y + config.hexSizeY * Math.sin(angle_rad);
 
-    return new Point(x, y);
-}
-
-export const getHexCornerCoordWithAngle = (center: Point, i: number) => {
-    const angle_deg = 60 * i + 30;
-    const angle_rad = Math.PI / 180 * angle_deg;
-    const x = center.x + config.hexSizeX * Math.cos(angle_rad);
-    const y = center.y + config.hexSizeY * Math.sin(angle_rad);
-
-    return new PointWithAngle(x, y, angle_deg);
+    return new PointWithAngle(x, y, 0, 0);
 }
 
 export const cubeDirection = (direction: number): Hex => {

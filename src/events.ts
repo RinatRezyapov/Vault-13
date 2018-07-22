@@ -47,6 +47,7 @@ export const onMouseUp = (state: State): void => {
 
     state.canvases.canvasInteraction.onmouseup = (evt: MouseEvent) => {
         if (evt.button === 0) {
+
             if (state.hexPathMap[hexToString(state.currentHex)]) {
                 const idx = state.mapObjects.findIndex(el => el.id === 0);
                 const bfs = BFS(state.mapObjects[idx].position, state.hexPathMap);

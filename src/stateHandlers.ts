@@ -1,4 +1,4 @@
-import { State, setLastState } from "./main";
+import { State } from "./main";
 import { MapObject } from "./domain/entities";
 
 export const mergeToState = (state: State, statePart: {}) => {
@@ -6,7 +6,6 @@ export const mergeToState = (state: State, statePart: {}) => {
 }
 
 export const updateState = (globalState: State, newState: State) => {
-    setLastState(globalState);
     globalState = Object.assign(globalState, newState);
 }
 

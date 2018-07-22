@@ -14,8 +14,19 @@
         </style>
     </head>
     <body oncontextmenu="return false">
-        <canvas id="canvasHex"></canvas>
-        <canvas id="canvasInteraction"></canvas>
+        <div style="display: flex; flex-direction: row">
+            <div style="color:#6bff02;">
+                <p>Left mouse button: move</p>
+                <p>Middle mouse button: remove obstacle</p>
+                <p>Right mouse button: add obstacle</p>
+                <p>Move mouse pointer to the edge</p>
+                <p>to scroll the map</p>
+            </div>
+            <div>
+                <canvas id="canvasHex"></canvas>
+                <canvas id="canvasInteraction"></canvas>
+            </div>
+        </div>
         <script src="./main.js"></script>
     </body>
 </html>

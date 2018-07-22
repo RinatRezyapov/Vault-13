@@ -3,6 +3,7 @@ import {
     MapObject,
     PointWithAngle,
     Point,
+    Segment,
 } from "./domain/entities";
 import {
     getHexPathMap,
@@ -11,19 +12,18 @@ import { getCanvas } from "./cnv";
 import { onMouseMove, handleMouseOut, handleMouseOver, scrollByPointer, onMouseDown, onMouseUp } from "./events";
 import { mergeToState, updateState, updateMapObjects } from "./stateHandlers";
 import { clocks } from "./clocks";
-import { drawOnCanvas, drawHex, drawLine, drawFOV, drawFOVWithFill, } from "./drawing";
+import { drawCanvas, drawFOV, animateMapObject, animateCurrentHex, animateCurrentHexCoords } from "./drawing";
 import { makeMovement } from "./player";
 import { config } from "./config";
-import { hexToPixel, hexToString } from "./converters";
-import { getObstacleSides, updateNearestObstacles, visibleField } from "./geometry";
+import { visibleField, getObstacles, getObstaclesSegments } from "./geometry";
 
 export interface State {
     hexPathMap: {[key: string]: Array<string>},
     nearestObstacles: {[key: string]: boolean},
-    obstacleSides: Array<{}>,
-    obstacleCorners: Array<PointWithAngle>,
+    obstacleSides: Array<Segment>,
+    obstacleCorners: Array<Point>,
     currentHex: Hex,
-    endPoints: {[key: string]: PointWithAngle},
+    endPoints: Array<PointWithAngle>,
     fov: {[key: string]: boolean},
     canvases: {
         canvasHex: HTMLCanvasElement | undefined,
@@ -63,7 +63,7 @@ export const globalState: State = {
     nearestObstacles: {},
     obstacleSides: [],
     obstacleCorners: [],
-    endPoints: {},
+    endPoints: [],
     fov: {},
     canvases: {
         canvasHex: undefined,
@@ -95,7 +95,7 @@ export const globalState: State = {
     currentFPS: 0,
     numFrames: 0,
     mapObjects: [
-        new MapObject(0, "player", new Hex(0, 0, 0), new Hex(0, 0, 0), [], 0, 60),
+        new MapObject(0, "player", new Hex(0, 20, -20), new Hex(0, 20, -20), [], 0, 60),
         new MapObject(1, "wall", new Hex(0, 18, -18), new Hex(0, 18, -18), [], 0, 0),
         new MapObject(2, "wall", new Hex(1, 18, -19), new Hex(1, 18, -19), [], 0, 0),
         new MapObject(3, "wall", new Hex(2, 18, -20), new Hex(2, 18, -20), [], 0, 0),
@@ -114,49 +114,33 @@ export const globalState: State = {
     ],
 }
 
-export let lastGlobalState: State;
-
-export const setLastState = (state: State) => {
-    lastGlobalState = Object.assign({}, state);
-}
-
-const animate = (state: State, object: MapObject) => {
-    if (state.canvases.canvasInteractionOffscreen) {
-        drawHex(state.canvases.canvasInteractionOffscreen, hexToPixel(object.position), 1, "transparent", object.id === 0 ? "yellow" : "rgba(255,0,0,0.1)");
-    }
-}
-
 export const update = (state: State) => {
     updateState(state, mergeToState(state, scrollByPointer(state)));
-    drawOnCanvas(state);
+    animateCurrentHex(state);
+    animateCurrentHexCoords(state);
+    drawCanvas(state);
 
     const playerIdx = state.mapObjects.findIndex(el => el.id === 0);
 
     for (let i = 0, len = state.mapObjects.length; i < len; i++) {
- 
-        const endPoints = i === playerIdx ? visibleField(state, state.mapObjects[playerIdx]) : state.endPoints;
-        const obstacleSides = i === playerIdx ? getObstacleSides(state, state.mapObjects[playerIdx]) : state.obstacleSides;
 
-        if (i === playerIdx) {
-            drawFOVWithFill(state, endPoints);
-        }
+        animateMapObject(state, state.mapObjects[i]);
 
-        animate(state, state.mapObjects[i]);
+        i === playerIdx && drawFOV(state, state.endPoints, state.mapObjects[playerIdx]);
+
         const newState = mergeToState(state, {
             mapObjects: updateMapObjects(state, makeMovement(state.mapObjects[i], state.hexPathMap), i),
-            nearestObstacles: updateNearestObstacles(state, state.mapObjects[playerIdx], state.mapObjects[i]),
-            obstacleSides: i === playerIdx ? getObstacleSides(state, state.mapObjects[playerIdx]) : state.obstacleSides,
-            endPoints: endPoints,
+            nearestObstacles: getObstacles(state.nearestObstacles, state.mapObjects[i]),
+            endPoints: i === playerIdx ? visibleField(getObstaclesSegments(state.nearestObstacles), state.mapObjects[playerIdx]) : state.endPoints,
         });
         updateState(state, newState);
-
     }
 } 
 
 const init = (state: State) => {
     
     //initialazing state
-    let stateWithHexPathMap = getHexPathMap(getCanvas(state));
+    const stateWithHexPathMap = getHexPathMap(getCanvas(state));
 
     updateState(state, stateWithHexPathMap)
 
