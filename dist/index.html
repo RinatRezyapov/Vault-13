@@ -1,32 +1,86 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Vault-13</title>
-        <style>
-            body {
-                background: black;
-            }
-            canvas {
-                position: absolute;
-                border: 1px solid #6bff02;
-                left: 20%;
-            }
-        </style>
-    </head>
-    <body oncontextmenu="return false">
-        <div style="display: flex; flex-direction: row">
-            <div style="color:#6bff02;">
-                <p>Left mouse button: move</p>
-                <p>Middle mouse button: remove obstacle</p>
-                <p>Right mouse button: add obstacle</p>
-                <p>Move mouse pointer to the edge</p>
-                <p>to scroll the map</p>
-            </div>
-            <div>
-                <canvas id="canvasHex"></canvas>
-                <canvas id="canvasInteraction"></canvas>
-            </div>
-        </div>
-        <script src="./main.js"></script>
-    </body>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Welcome to Firebase Hosting</title>
+
+  <!-- update the version number as needed -->
+  <script defer src="/__/firebase/5.5.1/firebase-app.js"></script>
+  <!-- include only the Firebase features as you need -->
+  <script defer src="/__/firebase/5.5.1/firebase-auth.js"></script>
+  <script defer src="/__/firebase/5.5.1/firebase-database.js"></script>
+  <script defer src="/__/firebase/5.5.1/firebase-messaging.js"></script>
+  <script defer src="/__/firebase/5.5.1/firebase-storage.js"></script>
+  <!-- initialize the SDK after all desired features are loaded -->
+  <script defer src="/__/firebase/init.js"></script>
+  <style>
+    html {
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      background: black;
+      width: 100%;
+      height: 100%;
+    }
+
+    canvas {
+      position: absolute;
+      border: 1px solid #6bff02;
+      left: 20%;
+    }
+
+    #authContainer {
+      width: 100%;
+      height: 100%;
+    }
+
+    #rootContainer {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body oncontextmenu="return false">
+  <div id="rootContainer">
+    <div id="authContainer">
+
+    </div>
+    <div id="canvasContainer">
+
+    </div>
+  </div>
+  <script src="./main.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+      // // The Firebase SDK is initialized and available here!
+      //
+      // firebase.auth().onAuthStateChanged(user => { });
+      // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
+      // firebase.messaging().requestPermission().then(() => { });
+      // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
+      //
+      // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
+      try {
+        let app = firebase.app();
+        let features = ['auth', 'database', 'messaging', 'storage'].filter(feature => typeof app[feature] === 'function');
+        document.getElementById('load').innerHTML = `Firebase SDK loaded with ${features.join(', ')}`;
+      } catch (e) {
+        console.error(e);
+        document.getElementById('load').innerHTML = 'Error loading the Firebase SDK, check the console.';
+      }
+    });
+  </script>
+</body>
+
 </html>

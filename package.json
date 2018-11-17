@@ -4,15 +4,22 @@
   "description": "JavaScript Game",
   "main": "main.tsx",
   "scripts": {
-    "start": "webpack-dev-server --mode development --open"
+    "start": "webpack-dev-server --mode development --open",
+    "build": "webpack"
   },
   "author": "Rinat Rezyapov",
   "license": "MIT",
   "homepage": "https://github.com/RinatRezyapov/Vault-13",
   "dependencies": {
-    "@types/react": "^16.4.1",
-    "@types/react-dom": "^16.0.6",
-    "react": "^16.3.2",
+    "@material-ui/core": "^3.1.0",
+    "@types/immutability-helper": "^2.6.3",
+    "@types/react": "^16.4.14",
+    "@types/react-dom": "^16.0.7",
+    "firebase": "^5.3.0",
+    "fp-ts": "^1.8.1",
+    "immutability-helper": "^2.8.1",
+    "load-images": "^0.1.1",
+    "react": "^16.5.2",
     "react-dom": "^16.3.2",
     "ts-loader": "^4.4.1",
     "typescript": "^2.9.2",
@@ -24,6 +31,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
+    "file-loader": "^2.0.0",
     "webpack": "^4.6.0",
     "webpack-dev-server": "^3.1.3"
   }

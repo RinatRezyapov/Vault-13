@@ -1,16 +1,19 @@
+import update from 'immutability-helper';
+
 import { State } from "./main";
-import { MapObject } from "./domain/entities";
+import { MapObject } from './domain/entities';
+import { dSE } from './utils/constants';
 
-export const mergeToState = (state: State, statePart: {}) => {
-    return Object.assign({}, state, statePart)
+export const updateMapObjects = (state: State, response: any) => {
+  return update(state, {
+    mapObjects: {
+      $set: [
+        ...state.mapObjects,
+        ...response.map((obj: any) => {
+          const data = obj.data;
+          return new MapObject(data.id, data.nickname, data.type, data.position, data.position, [], 0, data.fps, 0, 0, dSE)
+        })
+      ]
+    }
+  })
 }
-
-export const updateState = (globalState: State, newState: State) => {
-    globalState = Object.assign(globalState, newState);
-}
-
-export const updateMapObjects = (state: State, object: MapObject, idx: number) => [
-    ...state.mapObjects.slice(0, idx),
-    Object.assign({}, object),
-    ...state.mapObjects.slice(idx + 1)
-];

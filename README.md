@@ -1,23 +1,18 @@
 Canvas (Fallout 2 like) game? in functional programming style.
 
-Demo: https://codepen.io/RinatRezyapov/full/LBGzdE
+Demo: https://vault13-e0440.firebaseapp.com/ (multiplayer mode)
 
 Implemented: 
 
+* Raw serverless multiplayer mode (just trying it, nothing serious)
+* Basic animation (laggy)
 * Hexagonal grid (https://www.redblobgames.com/grids/hexagons/)
 * Breadth-first search
 * Getting path and moving
 * Obstacles
 * Field of view (https://ncase.me/sight-and-light/)
-* Scrollable with mouse pointer map (currently 2000x2000)
-* Typescriped
-
-
-Left mouse button - moving
-
-Middle mouse button - remove obstacle
-
-Right mouse button - add obstacle
+* Scrollable with mouse pointer map
+* Typescripted
 
 yarn install
 yarn start
