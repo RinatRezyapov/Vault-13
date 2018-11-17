@@ -1,6 +1,6 @@
 Canvas (Fallout 2 like) game? in functional programming style.
 
-Demo: https://vault13-e0440.firebaseapp.com/ (multiplayer mode)
+Demo: https://vault13-e0440.firebaseapp.com/ (multiplayer mode with firebase)
 
 Implemented: 
 
