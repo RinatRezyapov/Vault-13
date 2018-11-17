@@ -42,7 +42,12 @@ export const register = async (login: string, password: string, nickname: string
           q: 7,
           r: 3,
           s: -10
-        }
+        },
+        targetPosition: {
+          q: 7,
+          r: 3,
+          s: -10
+        },
       })
       return fromNullable(response)
     });
