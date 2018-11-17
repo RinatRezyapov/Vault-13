@@ -35,13 +35,13 @@ export const register = async (login: string, password: string, nickname: string
     }).then((response: string) => {
       mergeDoc("players", response, {
         id: response,
-        fps: 20,
+        fps: 10,
         nickname: nickname,
         type: "player",
         position: {
-          q: 0,
-          r: 2,
-          s: -2
+          q: 7,
+          r: 3,
+          s: -10
         }
       })
       return fromNullable(response)
