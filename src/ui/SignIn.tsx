@@ -2,7 +2,8 @@ import * as React from "react";
 import { authenticate, register } from "../utils/authentication";
 import { Option, isSome } from 'fp-ts/lib/Option'
 import TextField from "@material-ui/core/TextField";
-import { Button, Paper } from "@material-ui/core";
+import { Button, Paper, Snackbar } from "@material-ui/core";
+
 interface Props {
   onAuth: (id: Option<string>) => any;
 }
@@ -16,6 +17,10 @@ interface State {
   loginError: string;
   passwordError: string;
   nicknameError: string;
+  snackbar: {
+    open: boolean,
+    message: string,
+  };
 }
 
 export default class AuthForm extends React.Component<Props, State> {
@@ -31,6 +36,10 @@ export default class AuthForm extends React.Component<Props, State> {
       nicknameError: "",
       repeatedPassword: "",
       registration: false,
+      snackbar: {
+        open: false,
+        message: '',
+      }
     }
     this.onLoginClick = this.onLoginClick.bind(this);
     this.onLoginChange = this.onLoginChange.bind(this);
@@ -39,6 +48,8 @@ export default class AuthForm extends React.Component<Props, State> {
     this.onRegistrationClick = this.onRegistrationClick.bind(this);
     this.onRegisterClick = this.onRegisterClick.bind(this);
     this.onNicknameChange = this.onNicknameChange.bind(this);
+    this.handleSnackbarClose = this.handleSnackbarClose.bind(this);
+    this.onToLoginClick = this.onToLoginClick.bind(this);
   }
 
   onLoginClick(evt: any) {
@@ -46,6 +57,13 @@ export default class AuthForm extends React.Component<Props, State> {
     authenticate(this.state.login, this.state.password).then(id => {
       if (isSome(id)) {
         this.props.onAuth(id)
+      } else {
+        this.setState({
+          snackbar: {
+            open: true,
+            message: 'User is not found'
+          }
+        })
       }
     })
   }
@@ -53,6 +71,12 @@ export default class AuthForm extends React.Component<Props, State> {
   onRegistrationClick() {
     this.setState({
       registration: true
+    })
+  }
+  
+  onToLoginClick() {
+    this.setState({
+      registration: false
     })
   }
 
@@ -74,7 +98,17 @@ export default class AuthForm extends React.Component<Props, State> {
     if (this.state.password === this.state.repeatedPassword) {
       register(this.state.login, this.state.password, this.state.nickname).then(id => {
         if (isSome(id)) {
-          this.props.onAuth(id as any)
+          this.props.onAuth(id as any);
+          this.setState({
+            registration: false
+          })
+        } else {
+          this.setState({
+            snackbar: {
+              open: true,
+              message: 'User is already exists'
+            }
+          })
         }
       })
     } else {
@@ -111,6 +145,24 @@ export default class AuthForm extends React.Component<Props, State> {
       repeatedPassword: evt.target.value,
       passwordError: ""
     })
+  }
+
+  handleSnackbarClose() {
+    this.setState({
+      snackbar: {
+        open: false,
+        message: ''
+      }
+    })
+  }
+
+  renderSnackBar() {
+    return <Snackbar
+      open={this.state.snackbar.open}
+      message={this.state.snackbar.message}
+      autoHideDuration={6000}
+      onClose={this.handleSnackbarClose}
+    />
   }
 
   render() {
@@ -159,17 +211,29 @@ export default class AuthForm extends React.Component<Props, State> {
           <div style={{ flex: 1, textAlign: "center", marginTop: "15px" }}>
             <Button
               variant="outlined"
+              color="secondary"
+              onClick={this.onToLoginClick}
+              style={{ marginRight: 16 }}
+            >
+              To Login
+            </Button>
+            <Button
+              variant="outlined"
               color="primary"
               onClick={this.onRegisterClick}
             >
               Register
-                        </Button>
+            </Button>
           </div>
         </Paper>
+        {this.renderSnackBar()}
       </div>
     }
 
-    return <form onSubmit={this.onLoginClick} style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
+    return <form
+      onSubmit={this.onLoginClick}
+      style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}
+    >
       <Paper style={{ padding: "15px" }}>
         <TextField
           fullWidth
@@ -193,7 +257,7 @@ export default class AuthForm extends React.Component<Props, State> {
             type="submit"
           >
             Login
-                    </Button>
+          </Button>
           <Button
             style={{ marginLeft: "15px" }}
             variant="outlined"
@@ -201,8 +265,9 @@ export default class AuthForm extends React.Component<Props, State> {
             onClick={this.onRegistrationClick}
           >
             Registration
-                    </Button>
+          </Button>
         </div>
+        {this.renderSnackBar()}
       </Paper>
     </form>
   }

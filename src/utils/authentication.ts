@@ -8,7 +8,6 @@ export const authenticate = async (login: string, password: string): Promise<Opt
     new FirebaseQueryCondition("login", "==", login),
     new FirebaseQueryCondition("password", "==", password),
   ])
-
   if (response.length === 1) {
     const user = fromNullable(response[0]);
     const userLogin: string = user.map(v => v.data.login).getOrElse(() => "");
