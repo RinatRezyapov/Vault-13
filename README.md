@@ -6,7 +6,7 @@
 
 >[YouTube video tutorial](https://www.youtube.com/playlist?list=PLshG9vHWHGOgPIs2oarf1ZBTho5Jbg9JF)
 
-![vault-13](https://twitter.com/i/status/1332634490947121164)
+![vault-13](https://gph.is/g/Zk7LenP)
 
 ## Demo
 https://vault13-e0440.firebaseapp.com/
