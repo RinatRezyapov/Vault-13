@@ -2,7 +2,7 @@
 
 > There are 2 version of the game in this repo:
 
-> First ose is built with React [(commit)](https://github.com/RinatRezyapov/Vault-13/commit/3cdad138492932fc042d4408a6185c80f4dcc9f4)
+> First one is built with React [(commit)](https://github.com/RinatRezyapov/Vault-13/commit/3cdad138492932fc042d4408a6185c80f4dcc9f4)
 
 > Second one is built in Functional Programming style and uses TypeScript [(link)](https://github.com/RinatRezyapov/Vault-13/commit/c38eba8e30b26020bb85ed537e3e9c96e76bd2b6) 
 
