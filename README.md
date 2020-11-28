@@ -6,7 +6,7 @@
 
 >[YouTube video tutorial](https://www.youtube.com/playlist?list=PLshG9vHWHGOgPIs2oarf1ZBTho5Jbg9JF)
 
-![vault-13](https://firebasestorage.googleapis.com/v0/b/vault13-e0440.appspot.com/o/fallout2js.gif?alt=media&token=e7d89e8e-f048-4446-914f-b49a0e40e2b7)
+![vault-13](https://twitter.com/i/status/1332634490947121164)
 
 ## Demo
 https://vault13-e0440.firebaseapp.com/
