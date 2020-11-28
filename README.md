@@ -1,6 +1,6 @@
 # Fallout 2 in JavaScript and Canvas
 
-> There are 2 version of the game in this repo:
+> There are 2 versions of the game in this repo:
 
 > First one is built with React [(commit)](https://github.com/RinatRezyapov/Vault-13/commit/3cdad138492932fc042d4408a6185c80f4dcc9f4)
 
