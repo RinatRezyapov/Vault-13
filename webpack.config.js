@@ -4,6 +4,7 @@ module.exports = {
   entry: {
     "main": "./src/main.ts"
   },
+  mode: "development",
   output: {
 
   },
@@ -16,7 +17,10 @@ module.exports = {
       },
       {
         test: /\.(jpe?g|png|gif|svg)$/i,
-        loader: "file-loader?name=/img/[name].[ext]"
+        loader: 'file-loader',
+        options: {
+          name: 'file-loader?name=/img/[name].[ext]',
+        },
       }
     ]
   },
@@ -24,6 +28,6 @@ module.exports = {
     extensions: ['.tsx', '.ts', '.js']
   },
   devServer: {
-    contentBase: path.join(__dirname, 'dist')
+    static: path.join(__dirname, 'dist')
   }
 };

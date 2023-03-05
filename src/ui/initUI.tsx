@@ -6,31 +6,36 @@ import { Option, fromNullable } from 'fp-ts/lib/Option'
 import { State, initGame } from "../main";
 import App from "./App";
 import { updateState } from "../main";
-import { createMuiTheme } from '@material-ui/core/styles';
-import purple from '@material-ui/core/colors/purple';
-import green from '@material-ui/core/colors/green';
-import { ThemeProvider } from '@material-ui/core/styles';
+import { createMuiTheme, ThemeProvider } from '@mui/material/styles';
+import { green } from "@mui/material/colors";
+
 
 const theme = createMuiTheme({
   palette: {
     primary: green,
     secondary: green,
   },
-  overrides: {
+  components: {
     MuiPaper: {
-      root: {
-        backgroundColor: 'transparent',
-        border: '1px solid #6bff02'
+      styleOverrides: {
+        root: {
+          backgroundColor: 'transparent',
+          border: '1px solid #6bff02'
+        }
       }
     },
     MuiInputBase: {
-      root: {
-        color: '#6bff02'
+      styleOverrides: {
+        root: {
+          color: '#6bff02'
+        }
       }
     },
     MuiFormLabel: {
-      root: {
-        color: '#6bff02'
+      styleOverrides: {
+        root: {
+          color: '#6bff02'
+        }
       }
     }
   }
@@ -51,6 +56,6 @@ export const initUI = (state: State) => {
   ReactDOM.render(
     <ThemeProvider theme={theme}>
       <App onAuth={onAuth} />
-    </ThemeProvider>, 
+    </ThemeProvider>,
     document.getElementById("authContainer"));
 }

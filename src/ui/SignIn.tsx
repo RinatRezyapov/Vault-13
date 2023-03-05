@@ -1,8 +1,7 @@
 import * as React from "react";
 import { authenticate, register } from "../utils/authentication";
 import { Option, isSome } from 'fp-ts/lib/Option'
-import TextField from "@material-ui/core/TextField";
-import { Button, Paper, Snackbar } from "@material-ui/core";
+import { Button, Paper, Snackbar, TextField } from "@mui/material";
 
 interface Props {
   onAuth: (id: Option<string>) => any;
